@@ -179,7 +179,7 @@ export const SpecialRegistrationPage = () => {
           <FilterBar embedded
                   searchPlaceholder="Search applications..."
                   searchValue={searchTerm}
-                  searchSuggestions={data.flatMap((item) => [item.imei, item.requesterName, item.requesterNid])}
+                  searchSuggestions={data.flatMap((item) => [item.imei, item.brand, item.model, item.requesterName, item.requesterNid])}
                   onSearchChange={setSearchTerm}
                   onReset={() => {
                     setSearchTerm('');

@@ -1,494 +1,155 @@
-import { mockDashboardData } from '../mocks/dashboard.js';
-import { mockSpecialRegistrations } from '../mocks/specialRegistration.js';
-import { mockLostStolenDevices } from '../mocks/lostStolen.js';
-import { mockParents, mockPermissions, mockServiceActions, mockRoles } from '../mocks/roleManagement.js';
-import {
-  mockSupportTickets,
-  mockDepartments,
-  mockDesignations,
-  mockUsers,
-  mockBlockedImeis,
-  mockManufacturerUploads,
-  mockMsisdnImeiRecords
-} from '../mocks/office.js';
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éíç^´N‹Z–‹­¦ëeŠw¬Õ¥µÁ½ÉÐìµ½­…Í¡‰½…É‘…Ñ„ô™É½´€œ¸¸½µ½­Ì½‘…Í¡‰½…É¹©Ìœì)¥µÁ½ÉÐìµ½­MÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹Ìô™É½´€œ¸¸½µ½­Ì½ÍÁ•¥…±I•¥ÍÑÉ…Ñ¥½¸¹©Ìœì)¥µÁ½ÉÐìµ½­1½ÍÑMÑ½±•¹•Ù¥•Ìô™É½´€œ¸¸½µ½­Ì½±½ÍÑMÑ½±•¸¹©Ìœì)¥µÁ½ÉÐìµ½­A…É•¹ÑÌ°µ½­A•Éµ¥ÍÍ¥½¹Ì°µ½­M•ÉÙ¥•Ñ¥½¹Ì°µ½­I½±•Ìô™É½´€œ¸¸½µ½­Ì½É½±•5…¹…•µ•¹Ð¹©Ìœì)¥µÁ½ÉÐì(€µ½­MÕÁÁ½ÉÑQ¥­•ÑÌ°(€µ½­•Á…ÉÑµ•¹ÑÌ°(€µ½­•Í¥¹…Ñ¥½¹Ì°(€µ½­UÍ•ÉÌ°(€µ½­	±½­•‘%µ•¥Ì°(€µ½­5…¹Õ™…ÑÕÉ•ÉUÁ±½…‘Ì°(€µ½­5Í¥Í‘¹%µ•¥I•½É‘Ì)ô™É½´€œ¸¸½µ½­Ì½½™™¥”¹©Ìœì((¼¼M¥µÕ±…Ñ•‘•±…ä¡•±Á•È)½¹ÍÐ‘•±…ä€ô€¡µÌ€ô€ÄÈÀ¤€ôø¹•ÜAÉ½µ¥Í”¡É•Í½±Ù”€ôøÍ•ÑQ¥µ•½ÕÐ¡É•Í½±Ù”°µÌ¤¤ì()½¹ÍÐ¥Í]¥Ñ¡¥¹…Ñ•I…¹”€ô€¡Ù…±Õ”°™É½µ…Ñ”°Ñ½…Ñ”¤€ôøì(€¥˜€ …™É½µ…Ñ”€˜˜€…Ñ½…Ñ”¤É•ÑÕÉ¸ÑÉÕ”ì(€½¹ÍÐ¥Í½…Ñ”€ôMÑÉ¥¹œ¡Ù…±Õ”€üü€œœ¤¹Í±¥” À°€ÄÀ¤ì(€¥˜€ „½yq‘ìÑôµq‘ìÉôµq‘ìÉô¼¹Ñ•ÍÐ¡¥Í½…Ñ”¤¤É•ÑÕÉ¸™…±Í”ì(€É•ÑÕÉ¸€ …™É½µ…Ñ”ñð¥Í½…Ñ”€øô™É½µ…Ñ”¤€˜˜€ …Ñ½…Ñ”ñð¥Í½…Ñ”€ðôÑ½…Ñ”¤ì)ôì(()½¹ÍÐ¹½Éµ…±¥é••Á…ÉÑµ•¹Ð€ô€¡‘•Á…ÉÑµ•¹Ð¤€ôøì(€½¹ÍÐ¹…µ”€ô‘•Á…ÉÑµ•¹Ð¹¹…µ”€üü‘•Á…ÉÑµ•¹Ð¹™Õ±±9…µ”€üü€œœì(€½¹ÍÐ½‘”€ô‘•Á…ÉÑµ•¹Ð¹½‘”€üü‘•Á…ÉÑµ•¹Ð¹Í¡½ÉÑ9…µ”€üü€œœì((€É•ÑÕÉ¸ì(€€€€¸¸¹‘•Á…ÉÑµ•¹Ð°(€€€¹…µ”°(€€€½‘”°(€€€¡•…è‘•Á…ÉÑµ•¹Ð¹¡•…€üü€œœ°(€€€‘•ÍÉ¥ÁÑ¥½¸è‘•Á…ÉÑµ•¹Ð¹‘•ÍÉ¥ÁÑ¥½¸€üü€œœ°(€€€µ•µ‰•É½Õ¹Ðè(€€€€€‘•Á…ÉÑµ•¹Ð¹µ•µ‰•É½Õ¹Ð€üü(€€€€€µ½­UÍ•ÉÌ¹™¥±Ñ•È ¡ÕÍ•È¤€ôøÕÍ•È¹‘•Á…ÉÑµ•¹Ð€ôôô¹…µ”¤¹±•¹Ñ °(€€€ÍÑ…ÑÕÌè‘•Á…ÉÑµ•¹Ð¹ÍÑ…ÑÕÌ€üü€Ñ¥Ù”œ°(€ôì)ôì()½¹ÍÐ¹½Éµ…±¥é••Í¥¹…Ñ¥½¸€ô€¡‘•Í¥¹…Ñ¥½¸¤€ôøì(€½¹ÍÐÑ¥Ñ±”€ô‘•Í¥¹…Ñ¥½¸¹Ñ¥Ñ±”€üü‘•Í¥¹…Ñ¥½¸¹™Õ±±9…µ”€üü€œœì(€½¹ÍÐµ…Ñ¡¥¹UÍ•È€ôµ½­UÍ•ÉÌ¹™¥¹ ¡ÕÍ•È¤€ôøÕÍ•È¹‘•Í¥¹…Ñ¥½¸€ôôôÑ¥Ñ±”¤ì(€½¹ÍÐ‘•Á…ÉÑµ•¹Ñ9…µ”€ô(€€€‘•Í¥¹…Ñ¥½¸¹‘•Á…ÉÑµ•¹Ñ9…µ”€üüµ…Ñ¡¥¹UÍ•Èü¹‘•Á…ÉÑµ•¹Ð€üü€œœì(€½¹ÍÐµ…Ñ¡¥¹•Á…ÉÑµ•¹Ð€ôµ½­•Á…ÉÑµ•¹ÑÌ¹™¥¹ (€€€€¡‘•Á…ÉÑµ•¹Ð¤€ôø(€€€€€€¡‘•Á…ÉÑµ•¹Ð¹¹…µ”€üü‘•Á…ÉÑµ•¹Ð¹™Õ±±9…µ”€üü€œœ¤€ôôô‘•Á…ÉÑµ•¹Ñ9…µ”(€€¤ì((€É•ÑÕÉ¸ì(€€€€¸¸¹‘•Í¥¹…Ñ¥½¸°(€€€Ñ¥Ñ±”°(€€€‘•Á…ÉÑµ•¹Ñ%è‘•Í¥¹…Ñ¥½¸¹‘•Á…ÉÑµ•¹Ñ%€üüµ…Ñ¡¥¹•Á…ÉÑµ•¹Ðü¹¥€üü€œœ°(€€€‘•Á…ÉÑµ•¹Ñ9…µ”°(€€€É…¹­É…‘”è‘•Í¥¹…Ñ¥½¸¹É…¹­É…‘”€üü€œœ°(€€€ÕÍ•É½Õ¹Ðè(€€€€€‘•Í¥¹…Ñ¥½¸¹ÕÍ•É½Õ¹Ð€üü(€€€€€µ½­UÍ•ÉÌ¹™¥±Ñ•È ¡ÕÍ•È¤€ôøÕÍ•È¹‘•Í¥¹…Ñ¥½¸€ôôôÑ¥Ñ±”¤¹±•¹Ñ °(€€€‘•ÍÉ¥ÁÑ¥½¸è‘•Í¥¹…Ñ¥½¸¹‘•ÍÉ¥ÁÑ¥½¸€üü€œœ°(€ôì)ôì()½¹ÍÐ¹½Éµ…±¥é•=™™¥•UÍ•È€ô€¡ÕÍ•È¤€ôø€¡ì(€€¸¸¹ÕÍ•È°(€Í°èÕÍ•È¹Í°€üüÕÍ•È¹¹¼€üü€À°(€Á¡½¹”èÕÍ•È¹Á¡½¹”€üüÕÍ•È¹Á¡½¹•9Õµ‰•È€üü€œœ°)ô¤ì()½¹ÍÐ¹½Éµ…±¥é•	±½­•‘%µ•¤€ô€¡É•½É°¥¹‘•à€ô€À¤€ôø€¡ì(€€¸¸¹É•½É°(€Í°èÉ•½É¹Í°€üü¥¹‘•à€¬€Ä°(€‰±½­%èÉ•½É¹‰±½­%€üüMÑÉ¥¹œ¡É•½É¹¥ñð€ ‰±½¬´œ€¬€¡¥¹‘•à€¬€Ä¤¤¤¹Ñ½UÁÁ•É…Í” ¤°(€‰±½­QåÁ”èÉ•½É¹‰±½­QåÁ”€üü€M¥¹±”%5$œ°(€‰±½­…Ñ”èÉ•½É¹‰±½­…Ñ”€üüÉ•½É¹‰±½­•‘…Ñ”€üü€œœ°(€‰±½­•‘…Ñ”èÉ•½É¹‰±½­•‘…Ñ”€üüÉ•½É¹‰±½­…Ñ”€üü€œœ°(€É•µ…É­ÌèÉ•½É¹É•µ…É­Ì€üüÉ•½É¹‘•Ñ…¥±Ì€üü€œœ°)ô¤ì()½¹ÍÐ¹½Éµ…±¥é•5Í¥Í‘¹%µ•¤€ô€¡É•½É°¥¹‘•à€ô€À¤€ôø€¡ì(€€¸¸¹É•½É°(€Í°èÉ•½É¹Í°€üü¥¹‘•à€¬€Ä°(€±…ÍÑI•¥ÍÑÉ…Ñ¥½¹…Ñ”èÉ•½É¹±…ÍÑI•¥ÍÑÉ…Ñ¥½¹…Ñ”€üüÉ•½É¹…ÑÑ…¡•‘…Ñ”€üü€œœ°(€…ÑÑ…¡•‘…Ñ”èÉ•½É¹…ÑÑ…¡•‘…Ñ”€üüÉ•½É¹±…ÍÑI•¥ÍÑÉ…Ñ¥½¹…Ñ”€üü€œœ°)ô¤ì()•áÁ½ÉÐ½¹ÍÐµ½­Á¤€ôì(€€¼¼…Í¡‰½…É(€…Íå¹Œ•Ñ…Í¡‰½…É‘MÕµµ…Éä ¤ì(€€€…Ý…¥Ð‘•±…ä ÄÀÀ¤ì(€€€É•ÑÕÉ¸ì€¸¸¹µ½­…Í¡‰½…É‘…Ñ„ôì(€ô°((€€¼¼MÁ•¥…°I•¥ÍÑÉ…Ñ¥½¹Ì(€…Íå¹Œ•ÑMÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹Ì¡™¥±Ñ•ÉÌ€ôíô¤ì(€€€…Ý…¥Ð‘•±…ä ÄÈÀ¤ì(€€€±•Ð¥Ñ•µÌ€ôl¸¸¹µ½­MÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹Ítì((€€€¥˜€¡™¥±Ñ•ÉÌ¹Í•…É ¤ì(€€€€€½¹ÍÐÄ€ô™¥±Ñ•ÉÌ¹Í•…É ¹Ñ½1½Ý•É…Í” ¤ì(€€€€€¥Ñ•µÌ€ô¥Ñ•µÌ¹™¥±Ñ•È¡È€ôø(€€€€€€€È¹¥µ•¤¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤ñð(€€€€€€€€¡È¹‰É…¹ñð€œœ¤¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤ñð(€€€€€€€È¹É•ÅÕ•ÍÑ•É9…µ”¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤ñð(€€€€€€€È¹µ½‘•°¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤ñð(€€€€€€€È¹¥¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤(€€€€€€¤ì(€€€ô((€€€¥Ñ•µÌ€ô¥Ñ•µÌ¹™¥±Ñ•È ¡É•½É¤€ôø(€€€€€¥Í]¥Ñ¡¥¹…Ñ•I…¹”¡É•½É¹‘…Ñ”°™¥±Ñ•ÉÌ¹™É½µ…Ñ”°™¥±Ñ•ÉÌ¹Ñ½…Ñ”¤(€€€€¤ì((€€€½¹ÍÐÍÑ…ÑÕÍ½Õ¹ÑÌ€ô¥Ñ•µÌ¹É•‘Õ” ¡½Õ¹ÑÌ°É•½É¤€ôøì(€€€€€½Õ¹ÑÌ¹±°€¬ô€Äì(€€€€€¥˜€¡=‰©•Ð¹ÁÉ½Ñ½ÑåÁ”¹¡…Í=Ý¹AÉ½Á•ÉÑä¹…±°¡½Õ¹ÑÌ°É•½É¹ÍÑ…ÑÕÌ¤¤ì(€€€€€€€½Õ¹ÑÍmÉ•½É¹ÍÑ…ÑÕÍt€¬ô€Äì(€€€€€ô(€€€€€É•ÑÕÉ¸½Õ¹ÑÌì(€€€ô°ì(€€€€€±°è€À°(€€€€€A•¹‘¥¹œè€À°(€€€€€€%¸AÉ½É•ÍÌœè€À°(€€€€€•ÁÑ•è€À°(€€€€€I•©•Ñ•è€À°(€€€ô¤ì((€€€¥˜€¡™¥±Ñ•ÉÌ¹ÍÑ…ÑÕÌ€˜˜™¥±Ñ•ÉÌ¹ÍÑ…ÑÕÌ€„ôô€±°œ¤ì(€€€€€¥Ñ•µÌ€ô¥Ñ•µÌ¹™¥±Ñ•È¡È€ôøÈ¹ÍÑ…ÑÕÌ¹Ñ½1½Ý•É…Í” ¤€ôôô™¥±Ñ•ÉÌ¹ÍÑ…ÑÕÌ¹Ñ½1½Ý•É…Í” ¤¤ì(€€€ô((€€€É•ÑÕÉ¸ì(€€€€€¥Ñ•µÌ°(€€€€€Ñ½Ñ…°è¥Ñ•µÌ¹±•¹Ñ °(€€€€€ÍÑ…ÑÕÍ½Õ¹ÑÌ°(€€€€€Á…”è™¥±Ñ•ÉÌ¹Á…”ñð€Ä°(€€€€€Á…•M¥é”è™¥±Ñ•ÉÌ¹Á…•M¥é”ñð€ÄÀ(€€€ôì(€ô°((€…Íå¹Œ•ÑMÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹	å%¡¥¤ì(€€€…Ý…¥Ð‘•±…ä ÄÀÀ¤ì(€€€½¹ÍÐ¥Ñ•´€ôµ½­MÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹Ì¹™¥¹¡È€ôøÈ¹¥€ôôô¥¤ì(€€€¥˜€ …¥Ñ•´¤Ñ¡É½Ü¹•ÜÉÉ½È¡MÁ•¥…°I•¥ÍÑÉ…Ñ¥½¸€‘í¥‘ô¹½Ð™½Õ¹‘€¤ì(€€€É•ÑÕÉ¸ì€¸¸¹¥Ñ•´ôì(€ô°((€…Íå¹ŒÕÁ‘…Ñ•MÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹MÑ…ÑÕÌ¡¥°Ù•É‘¥Ð°É•µ…É­Ì¤ì(€€€…Ý…¥Ð‘•±…ä ÄÔÀ¤ì(€€€½¹ÍÐ¥Ñ•´€ôµ½­MÁ•¥…±I•¥ÍÑÉ…Ñ¥½¹Ì¹™¥¹¡È€ôøÈ¹¥€ôôô¥¤ì(€€€¥˜€¡¥Ñ•´¤ì(€€€€€¥Ñ•´¹ÍÑ…ÑÕÌ€ôÙ•É‘¥Ðì(€€€€€¥˜€¡É•µ…É­Ì¤¥Ñ•´¹É•µ…É­Ì€ôÉ•µ…É­Ìì(€€€ô(€€€É•ÑÕÉ¸ìÍÕ•ÍÌèÑÉÕ”°¥Ñ•´ôì(€ô°((€€¼¼1½ÍÐ€˜MÑ½±•¸•Ù¥•Ì(€…Íå¹Œ•Ñ1½ÍÑMÑ½±•¹•Ù¥•Ì¡™¥±Ñ•ÉÌ€ôíô¤ì(€€€…Ý…¥Ð‘•±…ä ÄÈÀ¤ì(€€€±•Ð¥Ñ•µÌ€ôl¸¸¹µ½­1½ÍÑMÑ½±•¹•Ù¥•Ítì(€€€¥˜€¡™¥±Ñ•ÉÌ¹Í•…É ¤ì(€€€€€½¹ÍÐÄ€ô™¥±Ñ•ÉÌ¹Í•…É ¹Ñ½1½Ý•É…Í” ¤ì(€€€€€¥Ñ•µÌ€ô¥Ñ•µÌ¹™¥±Ñ•È¡È€ôø(€€€€€€€È¹¥µ•¤¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤ñð(€€€€€€€È¹É•ÅÕ•ÍÑ•‘	ä¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤ñð(€€€€€€€È¹‘9Õµ‰•È¹Ñ½1½Ý•É…Í” ¤¹¥¹±Õ‘•Ì¡Ä¤(€€€€€€¤ì(€€€ô(€€€¥Ñ•µÌ€ô¥Ñ•µÌ¹™¥±Ñ•È ¡É•½É¤€ôø(€€€€€¥Í]¥Ñ¡¥¹…Ñ•I…¹”¡É•½É¹É•Á½ÉÑ…Ñ”°™¥±Ñ•ÉÌ¹™É½µ…Ñ”°™¥±Ñ•ÉÌ¹Ñ½…Ñ”¤(€€€€¤ì(€€€É•ÑÕÉ¸ì¥Ñ•µÌ°Ñ½Ñ…°è¥Ñ•µÌ¹±•¹Ñ ôì(€ô°((€€¼¼•Ù¥””µÉ•¥ÍÑÉ…Ñ¥½¸Í¥µÕ±…Ñ¥½¸(€…Íå¹Œ‘•É•¥ÍÑ•É•Ù¥”¡Á…å±½…¤ì(€€€…Ý…¥Ð‘•±…ä ÈÔÀ¤ì(€€€€¼¼5½¬‰ÕÍ¥¹•ÍÌµ•ÉÉ½ÈÙ•É¥™¥…Ñ¥½¸ÑÉ¥•È(€€€¥˜€¡Á…å±½…¹¥µ•¤€ôôô€œäääääääääääääääœñðÁ…å±½…¹ÑÉ¥•ÉÉÉ½È¤ì(€€€€€Ñ¡É½Ü¹•ÜÉÉ½È •Ù¥”‘”µÉ•¥ÍÑÉ…Ñ¥½¸¥Ì¹½Ð…±±½Ý•™½ÈÑ¡¥Ì%5$¸•Ù¥”¥Ì™±…•Õ¹‘•È±•…°¡½±½È%HÉ•ÍÑÉ¥Ñ¥½¸¸œ¤ì(€€€ô(€€€É•ÑÕÉ¸ì(€€€€€ÍÕ•ÍÌèÑÉÕ”°(€€€€€µ•ÍÍ…”è•Ù¥”Ý¥Ñ %5$€‘íÁ…å±½…¹¥µ•¥ô¡…Ì‰••¸ÍÕ•ÍÍ™Õ±±ä‘”µÉ•¥ÍÑ•É•™É½´5M%M8€‘íÁ…å±½…¹ÕÉÉ•¹ÑA¡½¹•9Õµ‰•Éô¹€°(€€€€€É•™•É•¹•%èI´‘í…Ñ”¹¹½Ü ¤¹Ñ½MÑÉ¥¹œ ¤¹Í±¥” ´Ø¥õ€(€€€ôì(€ô°((€€¼¼ÕÑ¼I•¥ÍÑÉ…Ñ¥½¸Í¥µÕ±…Ñ¥½¸(€…Íå¹Œ…ÕÑ½I•¥ÍÑ•É•Ù¥”¡Á…å±½…¤ì(€€€…Ý…¥Ð‘•±…ä ÈÔÀ¤ì(€€€É•ÑÕÉ¸ì(€€€€€ÍÕ•ÍÌèÑÉÕ”°(€€€€€µ•ÍÍ…”è•Ù¥”Ý¥Ñ %5$€‘íÁ…å±½…¹¥µ•¥ô¥ÌÉ•¥ÍÑ•É•…¹Á…¥É•Ý¥Ñ €‘íÁ…å±½…¹ÕÉÉ•¹ÑA¡½¹•9Õµ‰•Éô¹€°(€€€€€É•™•É•¹•%èI´‘í…Ñ”¹¹½Ü ¤¹Ñ½MÑÉ¥¹œ ¤¹Í±¥” ´Ø¥õ€(€€€ôì(€ô°((€€¼¼I½±”5…¹…•µ•¹Ð(€…Íå¹Œ•ÑA…É•¹ÑÌ ¤ì(€€€…Ý…¥Ð‘•±…ä ÄÀÀ¤ì(€€€É•ÑÕÉ¸l¸¸¹µ½­A…É•¹ÑÍtì(€ô°(€…Íå¹Œ•ÑA•Éµ¥ÍÍ¥½¹Ì ¤ì(€€€…Ý…¥Ð‘•±…ä ÄÀÀ¤ì(€€€É•ÑÕÉ¸l¸¸¹µ½­A•Éµ¥ÍÍ¥½¹Ítì(€ô°(€…Íå¹Œ•ÑM•ÉÙ¥•Ñ¥½¹Ì ¤ì(€€€…Ý…¥Ð‘•±…ä ÄÀÀ¤ì(€€€É•ÑÕÉ¸l¸¸¹µ½­M•ÉÙ¥•Ñ¥½¹Ítì(€ô°(€…Íå¹Œ•ÑI½±•Ì ¤ì(€€€…Ý…¥Ð‘•±…ä ÄÀÀ¤ì(€€€É•ÑÕÉ¸l¸¸¹µ½­I½±•Ítì(€ô°((€€¼¼%5$¡•¬(€…Íå¹Œ¡•­%µ•¤¡¥µ•¤¤ì(€€€…Ý…¥Ð‘•±…ä ÈÀÀ¤ì(€€€½¹ÍÐ±•…¸€ô€¡¥µ•¤ñð€œœ¤¹ÑÉ¥´ ¤ì(€€€½¹ÍÐ¥ÍI•¥ÍÑ•É•€ô€…±•…¸¹ÍÑ…ÉÑÍ]¥Ñ  œäääœ¤ì(€€€½¹ÍÐ¥Í	±½­•€ô±•…¸¹ÍÑ…ÉÑÍ]¥Ñ  œàØÐäÈÀœ¤ì((€€€É•ÑÕÉ¸ì(€€€€€¥µ•¤è±•…¸°(€€€€€ÍÑ…ÑÕÌè¥Í	±½­•€ü€	±½­•œ€è¥ÍI•¥ÍÑ•É•€ü€]¡¥Ñ”1¥ÍÑ•œ€è€9½ÐI•¥ÍÑ•É•œ°(€€€€€Ñ…Œè±•…¸¹Í±¥” À°€à¤°(€€€€€‰É…¹è€M…µÍÕ¹œ±•ÑÉ½¹¥Ìœ°(€€€€€µ½‘•°è€…±…áäM•É¥•Ì€Õ€¡•ÉÑ¥™¥•¤œ°(€€€€€‰•¹…±¥5•ÍÍ…”è%5$ƒ‚š£‚š»‚ž7‚š³‚šÀ€‘í±•…¹ôƒ‚š³‚ž#‚šœƒ‚š?‚š³‚šƒ‚š³‚šÿ‚š‚šÿ‚š‚šÃ‚šã‚šüƒ‚š?‚š£‚š‚š‚š‚š‚šÀƒ‚š‡‚ž‚š‚šû‚š³‚ž‚šs‚žƒ‚š£‚šÿ‚š³‚š£‚ž7‚šŸ‚š£‚ž‚šÀƒ‚šs‚š£‚ž7‚š¼ƒ‚š«‚ž7‚šÃ‚šã‚ž7‚š“‚ž‚š“‚–‘€°(€€€€€•¹±¥Í¡5•ÍÍ…”è%5$¹Õµ‰•È€‘í±•…¹ô¥ÌÙ…±¥…¹Ù•É¥™¥•¥¸	QI9%HI•¥ÍÑÉä¹€°(€€€€€É•¥ÍÑ•É•‘…Ñ”è€œÈÀÈÔ´ÄÄ´ÄÐœ°(€€€€€µ¹½ÑÑ…¡µ•¹Ðè€É…µ••¹Á¡½¹”€¼K^´¶‰žËkºwµçX›ØÚÕ\H	ÔÚ[™ÛHSQRIËˆ›ØÚÑ]Nˆ[Y\Ý[\ˆ›ØÚÙY]Nˆ[Y\Ý[\ˆ›ØÚÙYžNˆ	ÐÝ\œ™[XÝ]™HYZ[‰Ëˆ™X\ÛÛŽˆ^[ØYœ™X\ÛÛˆ	ÓX[X[YZ[š\Ý˜]]™H›ØÚÈ™\]Z\Ú][Û‰ËˆÝ]\Îˆ	Ð›ØÚÙY	Ëˆ™[X\šÜÎˆ^[ØYœ™[X\šÜÈ^[ØY™]Z[È	ÉËˆ]Z[Îˆ^[ØY™]Z[È^[ØYœ™[X\šÜÈ	ÉËˆJNÂˆ[ØÚÐ›ØÚÙY[YZ\Ë[œÚY
+™]Ô™XÛÜ™
+NÂˆ™]\›ˆÈÝXØÙ\ÜÎˆYK™XÛÜ™ˆ™]Ô™XÛÜ™NÂˆK‚ˆ\Þ[˜È›ØÚÑÛØ˜[[YZJ^[ØY
+HÂˆ™]\›ˆ[ØÚÐ\K˜›ØÚÒ[YZQÛØ˜[J^[ØY
+NÂˆK‚ˆ\Þ[˜ÈÙ]›ØÚÙY[YZ\Êš[\œÈHßJHÂˆ]ØZ][^JLŒ
+NÂˆ]][\ÈH[ØÚÐ›ØÚÙY[YZ\Ë›X\
+›Ü›X[^™P›ØÚÙY[YZJNÂˆYˆ
+š[\œËœÙX\˜Ú
+HÂˆÛÛœÝHHš[\œËœÙX\˜ÚÓÝÙ\Ø\ÙJ
+NÂˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ™XÛÜ™˜›ØÚÒYÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™š[YZKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™œ™X\ÛÛ‹ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™œ™[X\šÜËÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™˜›ØÚÙYžKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJBˆ
+NÂˆBˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ\ÕÚ][‘]T˜[™ÙJ™XÛÜ™˜›ØÚÑ]Kš[\œË™œ›ÛQ]Kš[\œËÑ]JBˆ
+NÂˆ™]\›ˆÈ][\ËÝ[ˆ][\Ë›[™ÝNÂˆK‚ˆ\Þ[˜ÈÙ]ÛØ˜[›ØÚÙY[YZ\Êš[\œÈHßJHÂˆ™]\›ˆ[ØÚÐ\K™Ù]›ØÚÙY[YZ\Êš[\œÊNÂˆK‚ˆ\Þ[˜È[˜›ØÚÑÛØ˜[[YZJY
+HÂˆ]ØZ][^JN
+NÂˆÛÛœÝ™XÛÜ™H[ØÚÐ›ØÚÙY[YZ\Ë™š[™
 
-// Simulated delay helper
-const delay = (ms = 120) => new Promise(resolve => setTimeout(resolve, ms));
+][JHOˆ][KšYOOHY
+NÂˆYˆ
+\™XÛÜ™
+H›ÝÈ™]È\œ›ÜŠ	Ð›XÚÛ\Ý™XÛÜ™›Ý›Ý[™‰ÊNÂˆ™XÛÜ™œÝ]\ÈH	Õ[˜›ØÚÙY	ÎÂˆ™]\›ˆÈÝXØÙ\ÜÎˆYK™XÛÜ™ˆ›Ü›X[^™P›ØÚÙY[YZJ™XÛÜ™
+HNÂˆK‚ˆËÈX[Y˜XÝ\™\ˆ\ØYˆ\Þ[˜ÈÙ]X[Y˜XÝ\™\•\ØYÊš[\œÈHßJHÂˆ]ØZ][^JL
+NÂˆ]][\ÈHË‹‹›[ØÚÓX[Y˜XÝ\™\•\ØY×NÂ‚ˆYˆ
+š[\œËœÙX\˜Ú
+HÂˆÛÛœÝ]Y\žHHš[\œËœÙX\˜Úš[J
+KÓÝÙ\Ø\ÙJ
+NÂˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ™XÛÜ™š[YZKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\Ê]Y\žJHˆ™XÛÜ™˜œ˜[™ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\Ê]Y\žJHˆ™XÛÜ™›[Ù[ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\Ê]Y\žJHˆ™XÛÜ™XËÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\Ê]Y\žJBˆ
+NÂˆB‚ˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ\ÕÚ][‘]T˜[™ÙJ™XÛÜ™˜Ü™X]Y]š[\œË™œ›ÛQ]Kš[\œËÑ]JBˆ
+NÂ‚ˆ™]\›ˆÈ][\ËÝ[ˆ][\Ë›[™ÝNÂˆK‚ˆ\Þ[˜È\ØYX[Y˜XÝ\™\ÜÝŠš[S˜[YKš[PÛÝ[HL
+HÂˆ]ØZ][^J
+NÂˆ™]\›ˆÂˆÝXØÙ\ÜÎˆYKˆš[S˜[YKˆÝ[\œÙYˆš[PÛÝ[ˆ˜[Y™XÛÜ™Îˆš[PÛÝ[ˆY\ÜØYÙNˆÝXØÙ\ÜÙ[H›ØÙ\ÜÙY	Ùš[PÛÝ[HSQRH™XÛÜ™È[È•È˜][Û˜[™YÚ\Ý\‹˜ˆNÂˆK‚ˆ\Þ[˜È\ØYX[Y˜XÝ\™\˜]Ú
+^[ØYHßJHÂˆÛÛœÝš[S˜[YHH^[ØY™š[OË›˜[YH	ÛX[Y˜XÝ\™\‹Z[YZK˜ÜÝ‰ÎÂˆÛÛœÝ™\Ý[H]ØZ][ØÚÐ\K\ØYX[Y˜XÝ\™\ÜÝŠš[S˜[YJNÂˆ™]\›ˆÂˆ‹‹œ™\Ý[ˆX[Y˜XÝ\™\Žˆ^[ØY›X[Y˜XÝ\™\ˆ	ÉËˆ˜]ÚYˆUÒIÑ]K››ÝÊ
+KÔÝš[™Ê
+KœÛXÙJMŠ_XˆÝ[›ØÙ\ÜÙYˆ™\Ý[˜[Y™XÛÜ™ËˆNÂˆK‚ˆËÈÝ\ÜXÚÙ]Âˆ\Þ[˜ÈÙ]Ý\ÜXÚÙ]Êš[\œÈHßJHÂˆ]ØZ][^JLŒ
+NÂˆ]][\ÈHË‹‹›[ØÚÔÝ\ÜXÚÙ]×NÂˆYˆ
+š[\œËœÝ]\È	‰ˆš[\œËœÝ]\ÈOOH	Ð[	ÊHÂˆ][\ÈH][\Ë™š[\ŠOˆœÝ]\ËÓÝÙ\Ø\ÙJ
+HOOHš[\œËœÝ]\ËÓÝÙ\Ø\ÙJ
+JNÂˆBˆYˆ
+š[\œËœÙX\˜Ú
+HÂˆÛÛœÝHHš[\œËœÙX\˜ÚÓÝÙ\Ø\ÙJ
+NÂˆ][\ÈH][\Ë™š[\ŠO‚ˆ˜XÚÚ[™ÒYÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆœÛ™KÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ›˜[YKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJBˆ
+NÂˆBˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ\ÕÚ][‘]T˜[™ÙJ™XÛÜ™™]Kš[\œË™œ›ÛQ]Kš[\œËÑ]JBˆ
+NÂˆ™]\›ˆÈ][\ËÝ[ˆ][\Ë›[™ÝNÂˆK‚ˆËÈÙ™šXÙHYZ[š\Ý˜][Û‚ˆ\Þ[˜ÈÙ]\\Y[Ê
+HÂˆ]ØZ][^JL
+NÂˆ™]\›ˆ[ØÚÑ\\Y[Ë›X\
+›Ü›X[^™Q\\Y[
+NÂˆKˆ\Þ[˜ÈÙ]\ÚYÛ˜][ÛœÊ
+HÂˆ]ØZ][^JL
+NÂˆ™]\›ˆ[ØÚÑ\ÚYÛ˜][ÛœË›X\
+›Ü›X[^™Q\ÚYÛ˜][ÛŠNÂˆKˆ\Þ[˜ÈÙ]Ù™šXÙU\Ù\œÊ
+HÂˆ]ØZ][^JL
+NÂˆ™]\›ˆ[ØÚÕ\Ù\œË›X\
+›Ü›X[^™SÙ™šXÙU\Ù\ŠNÂˆKˆ\Þ[˜ÈØ]™SÙ™šXÙU\Ù\Š\Ù\‘]JHÂˆ]ØZ][^JŒ
+NÂ‚ˆÛÛœÝ›Ü›X[^™Y^[ØYHÂˆ‹‹\Ù\‘]KˆÛ™S[X™\Žˆ\Ù\‘]KœÛ™HÏÈ\Ù\‘]KœÛ™S[X™\ˆÏÈ	ÉËˆNÂ‚ˆYˆ
+\Ù\‘]KšY
+HÂˆÛÛœÝ[™^H[ØÚÕ\Ù\œË™š[™[™^
 
-const isWithinDateRange = (value, fromDate, toDate) => {
-  if (!fromDate && !toDate) return true;
-  const isoDate = String(value ?? '').slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return false;
-  return (!fromDate || isoDate >= fromDate) && (!toDate || isoDate <= toDate);
-};
-
-
-const normalizeDepartment = (department) => {
-  const name = department.name ?? department.fullName ?? '';
-  const code = department.code ?? department.shortName ?? '';
-
-  return {
-    ...department,
-    name,
-    code,
-    head: department.head ?? '',
-    description: department.description ?? '',
-    memberCount:
-      department.memberCount ??
-      mockUsers.filter((user) => user.department === name).length,
-    status: department.status ?? 'Active',
-  };
-};
-
-const normalizeDesignation = (designation) => {
-  const title = designation.title ?? designation.fullName ?? '';
-  const matchingUser = mockUsers.find((user) => user.designation === title);
-  const departmentName =
-    designation.departmentName ?? matchingUser?.department ?? '';
-  const matchingDepartment = mockDepartments.find(
-    (department) =>
-      (department.name ?? department.fullName ?? '') === departmentName
-  );
-
-  return {
-    ...designation,
-    title,
-    departmentId: designation.departmentId ?? matchingDepartment?.id ?? '',
-    departmentName,
-    rankGrade: designation.rankGrade ?? '',
-    userCount:
-      designation.userCount ??
-      mockUsers.filter((user) => user.designation === title).length,
-    description: designation.description ?? '',
-  };
-};
-
-const normalizeOfficeUser = (user) => ({
-  ...user,
-  sl: user.sl ?? user.no ?? 0,
-  phone: user.phone ?? user.phoneNumber ?? '',
-});
-
-const normalizeBlockedImei = (record, index = 0) => ({
-  ...record,
-  sl: record.sl ?? index + 1,
-  blockId: record.blockId ?? String(record.id || ('block-' + (index + 1))).toUpperCase(),
-  blockType: record.blockType ?? 'Single IMEI',
-  blockDate: record.blockDate ?? record.blockedDate ?? '',
-  blockedDate: record.blockedDate ?? record.blockDate ?? '',
-  remarks: record.remarks ?? record.details ?? '',
-});
-
-const normalizeMsisdnImei = (record, index = 0) => ({
-  ...record,
-  sl: record.sl ?? index + 1,
-  lastRegistrationDate: record.lastRegistrationDate ?? record.attachedDate ?? '',
-  attachedDate: record.attachedDate ?? record.lastRegistrationDate ?? '',
-});
-
-export const mockApi = {
-  // Dashboard
-  async getDashboardSummary() {
-    await delay(100);
-    return { ...mockDashboardData };
-  },
-
-  // Special Registrations
-  async getSpecialRegistrations(filters = {}) {
-    await delay(120);
-    let items = [...mockSpecialRegistrations];
-
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      items = items.filter(r =>
-        r.imei.toLowerCase().includes(q) ||
-        r.requesterName.toLowerCase().includes(q) ||
-        r.model.toLowerCase().includes(q) ||
-        r.id.toLowerCase().includes(q)
-      );
-    }
-
-    items = items.filter((record) =>
-      isWithinDateRange(record.date, filters.fromDate, filters.toDate)
-    );
-
-    const statusCounts = items.reduce((counts, record) => {
-      counts.All += 1;
-      if (Object.prototype.hasOwnProperty.call(counts, record.status)) {
-        counts[record.status] += 1;
-      }
-      return counts;
-    }, {
-      All: 0,
-      Pending: 0,
-      'In Progress': 0,
-      Accepted: 0,
-      Rejected: 0,
-    });
-
-    if (filters.status && filters.status !== 'All') {
-      items = items.filter(r => r.status.toLowerCase() === filters.status.toLowerCase());
-    }
-
-    return {
-      items,
-      total: items.length,
-      statusCounts,
-      page: filters.page || 1,
-      pageSize: filters.pageSize || 10
-    };
-  },
-
-  async getSpecialRegistrationById(id) {
-    await delay(100);
-    const item = mockSpecialRegistrations.find(r => r.id === id);
-    if (!item) throw new Error(`Special Registration ${id} not found`);
-    return { ...item };
-  },
-
-  async updateSpecialRegistrationStatus(id, verdict, remarks) {
-    await delay(150);
-    const item = mockSpecialRegistrations.find(r => r.id === id);
-    if (item) {
-      item.status = verdict;
-      if (remarks) item.remarks = remarks;
-    }
-    return { success: true, item };
-  },
-
-  // Lost & Stolen Devices
-  async getLostStolenDevices(filters = {}) {
-    await delay(120);
-    let items = [...mockLostStolenDevices];
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      items = items.filter(r =>
-        r.imei.toLowerCase().includes(q) ||
-        r.requestedBy.toLowerCase().includes(q) ||
-        r.gdNumber.toLowerCase().includes(q)
-      );
-    }
-    items = items.filter((record) =>
-      isWithinDateRange(record.reportDate, filters.fromDate, filters.toDate)
-    );
-    return { items, total: items.length };
-  },
-
-  // Device De-registration simulation
-  async deregisterDevice(payload) {
-    await delay(250);
-    // Mock business-error verification trigger
-    if (payload.imei === '999999999999999' || payload.triggerError) {
-      throw new Error('Device de-registration is not allowed for this IMEI. Device is flagged under legal hold or EIR restriction.');
-    }
-    return {
-      success: true,
-      message: `Device with IMEI ${payload.imei} has been successfully de-registered from MSISDN ${payload.currentPhoneNumber}.`,
-      referenceId: `DREG-${Date.now().toString().slice(-6)}`
-    };
-  },
-
-  // Auto Registration simulation
-  async autoRegisterDevice(payload) {
-    await delay(250);
-    return {
-      success: true,
-      message: `Device with IMEI ${payload.imei} is registered and paired with ${payload.currentPhoneNumber}.`,
-      referenceId: `AREG-${Date.now().toString().slice(-6)}`
-    };
-  },
-
-  // Role Management
-  async getParents() {
-    await delay(100);
-    return [...mockParents];
-  },
-  async getPermissions() {
-    await delay(100);
-    return [...mockPermissions];
-  },
-  async getServiceActions() {
-    await delay(100);
-    return [...mockServiceActions];
-  },
-  async getRoles() {
-    await delay(100);
-    return [...mockRoles];
-  },
-
-  // IMEI Check
-  async checkImei(imei) {
-    await delay(200);
-    const clean = (imei || '').trim();
-    const isRegistered = !clean.startsWith('999');
-    const isBlocked = clean.startsWith('864920');
-
-    return {
-      imei: clean,
-      status: isBlocked ? 'Blocked' : isRegistered ? 'White Listed' : 'Not Registered',
-      tac: clean.slice(0, 8),
-      brand: 'Samsung Electronics',
-      model: 'Galaxy Series 5G (Certified)',
-      bengaliMessage: `IMEI à¦¨à¦®à§à¦¬à¦° ${clean} à¦¬à§ˆà¦§ à¦à¦¬à¦‚ à¦¬à¦¿à¦Ÿà¦¿à¦†à¦°à¦¸à¦¿ à¦à¦¨à¦‡à¦†à¦‡à¦†à¦° à¦¡à§‡à¦Ÿà¦¾à¦¬à§‡à¦œà§‡ à¦¨à¦¿à¦¬à¦¨à§à¦§à¦¨à§‡à¦° à¦œà¦¨à§à¦¯ à¦ªà§à¦°à¦¸à§à¦¤à§à¦¤à¥¤`,
-      englishMessage: `IMEI number ${clean} is valid and verified in BTRC NEIR Registry.`,
-      registeredDate: '2025-11-14',
-      mnoAttachment: 'Grameenphone / Robi / Banglalink active',
-      importType: 'Authorized Commercial Import (Type Approved by BTRC)'
-    };
-  },
-
-  // Global IMEI Block
-  async blockImeiGlobally(payload) {
-    await delay(250);
-    const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
-    const suffix = Date.now().toString().slice(-6);
-    const newRecord = normalizeBlockedImei({
-      id: 'blk-' + suffix,
-      blockId: 'GBL-' + suffix,
-      imei: payload.imei,
-      blockType: payload.blockType || 'Single IMEI',
-      blockDate: timestamp,
-      blockedDate: timestamp,
-      blockedBy: 'Current Active Admin',
-      reason: payload.reason || 'Manual Administrative Block Requisition',
-      status: 'Blocked',
-      remarks: payload.remarks || payload.details || '',
-      details: payload.details || payload.remarks || '',
-    });
-    mockBlockedImeis.unshift(newRecord);
-    return { success: true, record: newRecord };
-  },
-
-  async blockGlobalImei(payload) {
-    return mockApi.blockImeiGlobally(payload);
-  },
-
-  async getBlockedImeis(filters = {}) {
-    await delay(120);
-    let items = mockBlockedImeis.map(normalizeBlockedImei);
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      items = items.filter((record) =>
-        record.blockId.toLowerCase().includes(q) ||
-        record.imei.toLowerCase().includes(q) ||
-        record.reason.toLowerCase().includes(q) ||
-        record.remarks.toLowerCase().includes(q) ||
-        record.blockedBy.toLowerCase().includes(q)
-      );
-    }
-    items = items.filter((record) =>
-      isWithinDateRange(record.blockDate, filters.fromDate, filters.toDate)
-    );
-    return { items, total: items.length };
-  },
-
-  async getGlobalBlockedImeis(filters = {}) {
-    return mockApi.getBlockedImeis(filters);
-  },
-
-  async unblockGlobalImei(id) {
-    await delay(180);
-    const record = mockBlockedImeis.find((item) => item.id === id);
-    if (!record) throw new Error('Blacklist record not found.');
-    record.status = 'Unblocked';
-    return { success: true, record: normalizeBlockedImei(record) };
-  },
-
-  // Manufacturer Upload
-  async getManufacturerUploads(filters = {}) {
-    await delay(100);
-    let items = [...mockManufacturerUploads];
-
-    if (filters.search) {
-      const query = filters.search.trim().toLowerCase();
-      items = items.filter((record) =>
-        record.imei.toLowerCase().includes(query) ||
-        record.brand.toLowerCase().includes(query) ||
-        record.model.toLowerCase().includes(query) ||
-        record.tac.toLowerCase().includes(query)
-      );
-    }
-
-    items = items.filter((record) =>
-      isWithinDateRange(record.createdAt, filters.fromDate, filters.toDate)
-    );
-
-    return { items, total: items.length };
-  },
-
-  async uploadManufacturerCsv(fileName, fileCount = 250) {
-    await delay(400);
-    return {
-      success: true,
-      fileName,
-      totalParsed: fileCount,
-      validRecords: fileCount,
-      message: `Successfully processed ${fileCount} IMEI records into BTRC National Register.`
-    };
-  },
-
-  async uploadManufacturerBatch(payload = {}) {
-    const fileName = payload.file?.name || 'manufacturer-imei.csv';
-    const result = await mockApi.uploadManufacturerCsv(fileName);
-    return {
-      ...result,
-      manufacturer: payload.manufacturer || '',
-      batchId: `BATCH-${Date.now().toString().slice(-6)}`,
-      totalProcessed: result.validRecords,
-    };
-  },
-
-  // Support Tickets
-  async getSupportTickets(filters = {}) {
-    await delay(120);
-    let items = [...mockSupportTickets];
-    if (filters.status && filters.status !== 'All') {
-      items = items.filter(t => t.status.toLowerCase() === filters.status.toLowerCase());
-    }
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      items = items.filter(t =>
-        t.trackingId.toLowerCase().includes(q) ||
-        t.phone.toLowerCase().includes(q) ||
-        t.name.toLowerCase().includes(q)
-      );
-    }
-    items = items.filter((record) =>
-      isWithinDateRange(record.date, filters.fromDate, filters.toDate)
-    );
-    return { items, total: items.length };
-  },
-
-  // Office Administration
-  async getDepartments() {
-    await delay(100);
-    return mockDepartments.map(normalizeDepartment);
-  },
-  async getDesignations() {
-    await delay(100);
-    return mockDesignations.map(normalizeDesignation);
-  },
-  async getOfficeUsers() {
-    await delay(100);
-    return mockUsers.map(normalizeOfficeUser);
-  },
-  async saveOfficeUser(userData) {
-    await delay(200);
-
-    const normalizedPayload = {
-      ...userData,
-      phoneNumber: userData.phone ?? userData.phoneNumber ?? '',
-    };
-
-    if (userData.id) {
-      const index = mockUsers.findIndex((user) => user.id === userData.id);
-      if (index !== -1) {
-        mockUsers[index] = {
-          ...mockUsers[index],
-          ...normalizedPayload,
-        };
-        return normalizeOfficeUser(mockUsers[index]);
-      }
-    }
-
-    const newUser = {
-      ...normalizedPayload,
-      id: `usr-${Date.now().toString().slice(-4)}`,
-      no: mockUsers.length + 1,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-
-    mockUsers.push(newUser);
-    return normalizeOfficeUser(newUser);
-  },
-  async getUsers(filters = {}) {
-    await delay(120);
-    let items = [...mockUsers];
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
-      items = items.filter(u =>
-        u.fullName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.username.toLowerCase().includes(q) ||
-        u.phoneNumber.toLowerCase().includes(q)
-      );
-    }
-    return { items, total: items.length };
-  },
-
-  async getUserById(id) {
-    await delay(100);
-    const user = mockUsers.find(u => u.id === id);
-    if (!user) throw new Error(`User ${id} not found`);
-    return { ...user };
-  },
-
-  async saveUser(userData) {
-    await delay(200);
-    if (userData.id) {
-      const idx = mockUsers.findIndex(u => u.id === userData.id);
-      if (idx !== -1) {
-        mockUsers[idx] = { ...mockUsers[idx], ...userData };
-        return mockUsers[idx];
-      }
-    }
-    const newUser = {
-      ...userData,
-      id: `usr-${Date.now().toString().slice(-4)}`,
-      no: mockUsers.length + 1,
-      createdAt: new Date().toISOString().slice(0, 10)
-    };
-    mockUsers.push(newUser);
-    return newUser;
-  },
-
-  // MSISDN IMEI Lookup
-  async getMsisdnImeiList(filters = {}) {
-    await delay(120);
-    let items = mockMsisdnImeiRecords.map(normalizeMsisdnImei);
-
-    if (filters.operator && filters.operator !== 'All') {
-      items = items.filter((record) => record.operator === filters.operator);
-    }
-
-    if (filters.search) {
-      const q = filters.search.trim().toLowerCase();
-      if (filters.searchBy === 'MSISDN') {
-        const normalizedQuery = q.replace(/[\s+-]/g, '');
-        items = items.filter((record) =>
-          record.msisdn.replace(/[\s+-]/g, '').includes(normalizedQuery)
-        );
-      } else if (filters.searchBy === 'IMEI') {
-        items = items.filter((record) => record.imei.toLowerCase().includes(q));
-      } else {
-        items = items.filter((record) =>
-          record.msisdn.toLowerCase().includes(q) ||
-          record.imei.toLowerCase().includes(q) ||
-          record.operator.toLowerCase().includes(q) ||
-          record.deviceModel.toLowerCase().includes(q)
-        );
-      }
-    }
-
-    items = items.filter((record) =>
-      isWithinDateRange(record.lastRegistrationDate, filters.fromDate, filters.toDate)
-    );
-
-    return { items, total: items.length };
-  },
-
-  async lookupMsisdnImei(type, query) {
-    await delay(150);
-    if (!query) return [];
-    const q = query.trim().toLowerCase();
-
-    return mockMsisdnImeiRecords
-      .map(normalizeMsisdnImei)
-      .filter((record) => {
-        if (type === 'MSISDN') {
-          return record.msisdn.replace(/[\s+-]/g, '').includes(q.replace(/[\s+-]/g, ''));
-        }
-        return record.imei.toLowerCase().includes(q);
-      });
-  }
-};
+\Ù\ŠHOˆ\Ù\‹šYOOH\Ù\‘]KšY
+NÂˆYˆ
+[™^OOHLJHÂˆ[ØÚÕ\Ù\œÖÚ[™^HHÂˆ‹‹›[ØÚÕ\Ù\œÖÚ[™^Kˆ‹‹››Ü›X[^™Y^[ØYˆNÂˆ™]\›ˆ›Ü›X[^™SÙ™šXÙU\Ù\Š[ØÚÕ\Ù\œÖÚ[™^JNÂˆBˆB‚ˆÛÛœÝ™]Õ\Ù\ˆHÂˆ‹‹››Ü›X[^™Y^[ØYˆYˆ\Ü‹IÑ]K››ÝÊ
+KÔÝš[™Ê
+KœÛXÙJM
+_Xˆ›Îˆ[ØÚÕ\Ù\œË›[™Ý
+ÈKˆÜ™X]Y]ˆ™]È]J
+KÒTÓÔÝš[™Ê
+KœÛXÙJL
+KˆNÂ‚ˆ[ØÚÕ\Ù\œËœ\Ú
+™]Õ\Ù\ŠNÂˆ™]\›ˆ›Ü›X[^™SÙ™šXÙU\Ù\Š™]Õ\Ù\ŠNÂˆKˆ\Þ[˜ÈÙ]\Ù\œÊš[\œÈHßJHÂˆ]ØZ][^JLŒ
+NÂˆ]][\ÈHË‹‹›[ØÚÕ\Ù\œ×NÂˆYˆ
+š[\œËœÙX\˜Ú
+HÂˆÛÛœÝHHš[\œËœÙX\˜ÚÓÝÙ\Ø\ÙJ
+NÂˆ][\ÈH][\Ë™š[\ŠHO‚ˆK™[˜[YKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆK™[XZ[ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆK\Ù\›˜[YKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆKœÛ™S[X™\‹ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJBˆ
+NÂˆBˆ™]\›ˆÈ][\ËÝ[ˆ][\Ë›[™ÝNÂˆK‚ˆ\Þ[˜ÈÙ]\Ù\žRY
+Y
+HÂˆ]ØZ][^JL
+NÂˆÛÛœÝ\Ù\ˆH[ØÚÕ\Ù\œË™š[™
+HOˆKšYOOHY
+NÂˆYˆ
+]\Ù\ŠH›ÝÈ™]È\œ›ÜŠ\Ù\ˆ	ÚYH›Ý›Ý[™
+NÂˆ™]\›ˆÈ‹‹\Ù\ˆNÂˆK‚ˆ\Þ[˜ÈØ]™U\Ù\Š\Ù\‘]JHÂˆ]ØZ][^JŒ
+NÂˆYˆ
+\Ù\‘]KšY
+HÂˆÛÛœÝYH[ØÚÕ\Ù\œË™š[™[™^
+HOˆKšYOOH\Ù\‘]KšY
+NÂˆYˆ
+YOOHLJHÂˆ[ØÚÕ\Ù\œÖÚYHHÈ‹‹›[ØÚÕ\Ù\œÖÚYK‹‹\Ù\‘]HNÂˆ™]\›ˆ[ØÚÕ\Ù\œÖÚYNÂˆBˆBˆÛÛœÝ™]Õ\Ù\ˆHÂˆ‹‹\Ù\‘]KˆYˆ\Ü‹IÑ]K››ÝÊ
+KÔÝš[™Ê
+KœÛXÙJM
+_Xˆ›Îˆ[ØÚÕ\Ù\œË›[™Ý
+ÈKˆÜ™X]Y]ˆ™]È]J
+KÒTÓÔÝš[™Ê
+KœÛXÙJL
+BˆNÂˆ[ØÚÕ\Ù\œËœ\Ú
+™]Õ\Ù\ŠNÂˆ™]\›ˆ™]Õ\Ù\ŽÂˆK‚ˆËÈTÒTÑˆSQRHÛÚÝ\ˆ\Þ[˜ÈÙ]\Ú\Ù’[YZS\Ý
+š[\œÈHßJHÂˆ]ØZ][^JLŒ
+NÂˆ]][\ÈH[ØÚÓ\Ú\Ù’[YZT™XÛÜ™Ë›X\
+›Ü›X[^™S\Ú\Ù’[YZJNÂ‚ˆYˆ
+š[\œË›Ü\˜]Üˆ	‰ˆš[\œË›Ü\˜]ÜˆOOH	Ð[	ÊHÂˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HOˆ™XÛÜ™›Ü\˜]ÜˆOOHš[\œË›Ü\˜]ÜŠNÂˆB‚ˆYˆ
+š[\œËœÙX\˜Ú
+HÂˆÛÛœÝHHš[\œËœÙX\˜Úš[J
+KÓÝÙ\Ø\ÙJ
+NÂˆYˆ
+š[\œËœÙX\˜ÚžHOOH	ÓTÒTÑ‰ÊHÂˆÛÛœÝ›Ü›X[^™Y]Y\žHHKœ™\XÙJÖ×ÊËWKÙË	ÉÊNÂˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ™XÛÜ™›\Ú\Ù‹œ™\XÙJÖ×ÊËWKÙË	ÉÊKš[˜ÛY\Ê›Ü›X[^™Y]Y\žJBˆ
+NÂˆH[ÙHYˆ
+š[\œËœÙX\˜ÚžHOOH	ÒSQRIÊHÂˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HOˆ™XÛÜ™š[YZKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJJNÂˆH[ÙHÂˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ™XÛÜ™›\Ú\Ù‹ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™š[YZKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™›Ü\˜]Ü‹ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJHˆ™XÛÜ™™]šXÙS[Ù[ÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJBˆ
+NÂˆBˆB‚ˆ][\ÈH][\Ë™š[\Š
+™XÛÜ™
+HO‚ˆ\ÕÚ][‘]T˜[™ÙJ™XÛÜ™›\Ý™YÚ\Ý˜][Û‘]Kš[\œË™œ›ÛQ]Kš[\œËÑ]JBˆ
+NÂ‚ˆ™]\›ˆÈ][\ËÝ[ˆ][\Ë›[™ÝNÂˆK‚ˆ\Þ[˜ÈÛÚÝ\\Ú\Ù’[YZJ\K]Y\žJHÂˆ]ØZ][^JML
+NÂˆYˆ
+\]Y\žJH™]\›ˆ×NÂˆÛÛœÝHH]Y\žKš[J
+KÓÝÙ\Ø\ÙJ
+NÂ‚ˆ™]\›ˆ[ØÚÓ\Ú\Ù’[YZT™XÛÜ™Âˆ›X\
+›Ü›X[^™S\Ú\Ù’[YZJBˆ™š[\Š
+™XÛÜ™
+HOˆÂˆYˆ
+\HOOH	ÓTÒTÑ‰ÊHÂˆ™]\›ˆ™XÛÜ™›\Ú\Ù‹œ™\XÙJÖ×ÊËWKÙË	ÉÊKš[˜ÛY\ÊKœ™\XÙJÖ×ÊËWKÙË	ÉÊJNÂˆBˆ™]\›ˆ™XÛÜ™š[YZKÓÝÙ\Ø\ÙJ
+Kš[˜ÛY\ÊJNÂˆJNÂˆBŸNÂ
