@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="neir-build" content="8c0d4cde16333c3fec4f2d64174023eae92f0610" />
+    <script>
+      (() => {
+        try {
+          const storedTheme = window.localStorage.getItem('neir.theme');
+          const theme = storedTheme === 'dark' ? 'dark' : 'light';
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+
+      (() => {
+        const currentBuild = '8c0d4cde16333c3fec4f2d64174023eae92f0610';
+        const basePath = window.location.pathname.endsWith('/')
+          ? window.location.pathname
+          : window.location.pathname.replace(/\/[^/]*$/, '/');
+
+        fetch(basePath + 'version.json?ts=' + Date.now(), { cache: 'no-store' })
+          .then((response) => response.ok ? response.json() : null)
+          .then((version) => {
+            const latestBuild = version?.build;
+            if (!latestBuild || latestBuild === currentBuild) return;
+
+            const url = new URL(window.location.href);
+            if (url.searchParams.get('__build') === latestBuild) return;
+
+            url.searchParams.set('__build', latestBuild);
+            window.location.replace(url.pathname + url.search + url.hash);
+          })
+          .catch(() => {});
+      })();
+    </script>
+    <title>BTRC NEIR Admin Portal | National Equipment Identity Register</title>
+    <meta name="description" content="National Equipment Identity Register (NEIR) administrative portal frontend for Bangladesh Telecommunication Regulatory Commission." />
+    <meta property="og:title" content="BTRC NEIR Admin Portal" />
+    <meta property="og:description" content="National Equipment Identity Register (NEIR) administrative portal." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" type="image/png" href="/NEIR/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/NEIR/assets/index-ovcLvNri.js"></script>
+    <link rel="stylesheet" crossorigin href="/NEIR/assets/index-fsfWfdOD.css">
+  </head>
+  <body class="font-sans antialiased min-h-screen">
+    <div id="root"></div>
+  </body>
+</html>

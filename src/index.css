@@ -1,0 +1,707 @@
+@import "tailwindcss";
+@import "./system/typography.css";
+
+@layer base {
+  :root {
+    --color-primary: #01ADC1;
+    --color-primary-dark: #028A97;
+    --color-primary-deep: #0A767E;
+    --color-primary-light: #E1F7FB;
+    --color-secondary: #80C2C6;
+    --color-on-primary: #FFFFFF;
+
+    --color-background: #F7F8FC;
+    --color-background-subtle: #FBFCFE;
+    --color-surface: #FFFFFF;
+    --color-surface-hover: #F3FBFC;
+    --color-border: #E2E5F0;
+    --color-border-subtle: rgba(226, 229, 240, 0.55);
+    --color-border-strong: #C8CDD9;
+
+    /* Reusable MUI form-control geometry */
+    --field-height: 52px;
+    --field-radius: 4px;
+    --field-padding-x: 14px;
+    --field-font-size: 16px;
+    --textarea-min-height: 112px;
+    --form-field-gap: 16px;
+    --field-disabled-bg: #F2F3F6;
+    --field-readonly-bg: #FFFFFF;
+
+    --color-text-primary: #202338;
+    --color-text-secondary: #626981;
+    --color-text-muted: #7A8197;
+
+    --color-success: #2E7D32;
+    --color-success-bg: rgba(46, 125, 50, 0.10);
+    --color-success-border: rgba(46, 125, 50, 0.25);
+    --color-warning: #EF8F22;
+    --color-warning-text: #B96B18;
+    --color-warning-bg: rgba(239, 143, 34, 0.10);
+    --color-warning-border: rgba(239, 143, 34, 0.30);
+    --color-error: #C62828;
+    --color-error-bg: rgba(198, 40, 40, 0.10);
+    --color-error-border: rgba(198, 40, 40, 0.25);
+    --color-info-bg: rgba(1, 173, 193, 0.10);
+    --color-info-border: rgba(1, 173, 193, 0.25);
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-overlay: 20px;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-overlay: 0 12px 48px rgba(0, 0, 0, 0.16);
+
+    --motion-fast: 140ms;
+    --motion-base: 180ms;
+    --motion-medium: 240ms;
+    --motion-slow: 320ms;
+    --motion-overlay-enter: 240ms;
+    --motion-overlay-exit: 180ms;
+    --ease-overlay-enter: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-overlay-exit: cubic-bezier(0.4, 0, 1, 1);
+
+    --z-header: 30;
+    --z-dropdown: 40;
+    --z-drawer: 50;
+    --z-modal: 60;
+    --z-toast: 70;
+    --z-tooltip: 80;
+
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-primary: #8AB4F8;
+    --color-primary-dark: #669DF6;
+    --color-primary-deep: #4F7FD8;
+    --color-primary-light: rgba(138, 180, 248, 0.12);
+    --color-secondary: #AECBFA;
+    --color-on-primary: #202124;
+
+    --color-background: #202124;
+    --color-background-subtle: #252629;
+    --color-surface: #2B2C2F;
+    --color-surface-hover: #303134;
+    --color-border: #3C4043;
+    --color-border-subtle: #35373A;
+    --color-border-strong: #5F6368;
+
+    --field-disabled-bg: #303134;
+    --field-readonly-bg: #2B2C2F;
+
+    --color-text-primary: #E8EAED;
+    --color-text-secondary: #BDC1C6;
+    --color-text-muted: #9AA0A6;
+
+    --color-success: #81C995;
+    --color-success-bg: rgba(129, 201, 149, 0.12);
+    --color-success-border: rgba(129, 201, 149, 0.30);
+    --color-warning: #FDD663;
+    --color-warning-text: #FDD663;
+    --color-warning-bg: rgba(253, 214, 99, 0.12);
+    --color-warning-border: rgba(253, 214, 99, 0.30);
+    --color-error: #F28B82;
+    --color-error-bg: rgba(242, 139, 130, 0.12);
+    --color-error-border: rgba(242, 139, 130, 0.30);
+    --color-info-bg: rgba(138, 180, 248, 0.12);
+    --color-info-border: rgba(138, 180, 248, 0.30);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.28);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.34);
+    --shadow-lg: 0 4px 14px rgba(0, 0, 0, 0.40);
+    --shadow-overlay: 0 16px 56px rgba(0, 0, 0, 0.52);
+  }
+
+  html[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  html {
+    font-size: 16px;
+  }
+
+  html[data-text-size='compact'],
+  html[data-text-size='standard'],
+  html[data-text-size='large'] {
+    font-size: 16px;
+  }
+
+  /* Form geometry stays stable; font size follows the exact 90% / 100% / 110% preference scale. */
+  html[data-text-size='compact'] {
+    --field-height: 52px;
+    --field-font-size: 14.4px;
+  }
+
+  html[data-text-size='standard'] {
+    --field-height: 52px;
+    --field-font-size: 16px;
+  }
+
+  html[data-text-size='large'] {
+    --field-height: 52px;
+    --field-font-size: 17.6px;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+
+
+  input,
+  select,
+  textarea {
+    font-size: var(--field-font-size);
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role='button'] {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(1, 173, 193, 0.18);
+    color: var(--color-text-primary);
+  }
+
+  h1, h2, h3, h4, p {
+    margin-top: 0;
+  }
+}
+
+/* Dark-mode compatibility layer for legacy hard-coded utility colors.
+   New/shared UI should continue using the semantic CSS variables above. */
+html[data-theme='dark'] .bg-white {
+  background-color: var(--color-surface);
+}
+
+html[data-theme='dark'] [class~="bg-white/85"] {
+  background-color: rgba(43, 44, 47, 0.92);
+}
+
+html[data-theme='dark'] .border-white {
+  border-color: var(--color-border);
+}
+
+html[data-theme='dark'] [class~="bg-[#F7F8FC]"] {
+  background-color: var(--color-background-subtle);
+}
+
+html[data-theme='dark'] [class~="text-[#202338]"] {
+  color: var(--color-text-primary);
+}
+
+html[data-theme='dark'] [class~="text-[#626981]"] {
+  color: var(--color-text-secondary);
+}
+
+html[data-theme='dark'] [class~="text-[#7A8197]"],
+html[data-theme='dark'] [class~="text-[#A0A6B8]"] {
+  color: var(--color-text-muted);
+}
+
+html[data-theme='dark'] [class~="border-[#E2E5F0]"],
+html[data-theme='dark'] [class~="border-[#C8CDD9]"] {
+  border-color: var(--color-border);
+}
+
+html[data-theme='dark'] [class~="text-[#01ADC1]"] {
+  color: var(--color-primary);
+}
+
+html[data-theme='dark'] [class~="text-[#028A97]"] {
+  color: var(--color-primary-dark);
+}
+
+html[data-theme='dark'] [class~="bg-[#01ADC1]"] {
+  background-color: var(--color-primary);
+}
+
+html[data-theme='dark'] [class~="border-[#01ADC1]"] {
+  border-color: var(--color-primary);
+}
+
+html[data-theme='dark'] [class~="text-[#2E7D32]"],
+html[data-theme='dark'] [class~="text-[#1B5E20]"] {
+  color: var(--color-success);
+}
+
+html[data-theme='dark'] [class~="text-[#B96B18]"],
+html[data-theme='dark'] [class~="text-[#B85F00]"],
+html[data-theme='dark'] [class~="text-[#92400E]"] {
+  color: var(--color-warning);
+}
+
+html[data-theme='dark'] [class~="text-[#C62828]"],
+html[data-theme='dark'] [class~="text-[#8F1D20]"],
+html[data-theme='dark'] [class~="text-[#A91F22]"] {
+  color: var(--color-error);
+}
+
+html[data-theme='dark'] .bg-red-50,
+html[data-theme='dark'] .bg-red-100,
+html[data-theme='dark'] [class~="hover:bg-red-50"]:hover,
+html[data-theme='dark'] [class~="hover:bg-red-100"]:hover {
+  background-color: rgba(242, 139, 130, 0.12);
+}
+
+html[data-theme='dark'] .border-red-100 {
+  border-color: rgba(242, 139, 130, 0.28);
+}
+
+html[data-theme='dark'] .bg-blue-50 {
+  background-color: var(--color-primary-light);
+}
+
+html[data-theme='dark'] .text-blue-700 {
+  color: var(--color-primary);
+}
+
+html[data-theme='dark'] .border-blue-200 {
+  border-color: rgba(138, 180, 248, 0.28);
+}
+
+html[data-theme='dark'] .bg-emerald-50 {
+  background-color: rgba(129, 201, 149, 0.12);
+}
+
+html[data-theme='dark'] .text-emerald-700,
+html[data-theme='dark'] .text-emerald-800,
+html[data-theme='dark'] .text-emerald-900 {
+  color: var(--color-success);
+}
+
+html[data-theme='dark'] .border-emerald-200,
+html[data-theme='dark'] .border-emerald-300 {
+  border-color: rgba(129, 201, 149, 0.28);
+}
+
+html[data-theme='dark'] .bg-amber-50 {
+  background-color: rgba(253, 214, 99, 0.12);
+}
+
+html[data-theme='dark'] .text-amber-600,
+html[data-theme='dark'] .text-amber-700 {
+  color: var(--color-warning);
+}
+
+html[data-theme='dark'] .border-amber-200 {
+  border-color: rgba(253, 214, 99, 0.30);
+}
+
+html[data-theme='dark'] .bg-rose-50 {
+  background-color: rgba(242, 139, 130, 0.12);
+}
+
+html[data-theme='dark'] .text-rose-700 {
+  color: var(--color-error);
+}
+
+html[data-theme='dark'] .border-rose-200 {
+  border-color: rgba(242, 139, 130, 0.28);
+}
+
+html[data-theme='dark'] [class~="bg-[var(--color-primary)]"][class~="text-white"],
+html[data-theme='dark'] [class~="bg-[var(--color-primary-dark)]"][class~="text-white"] {
+  color: var(--color-on-primary);
+}
+
+html[data-theme='dark'] ::selection {
+  background: rgba(138, 180, 248, 0.22);
+  color: var(--color-text-primary);
+}
+
+@keyframes preview-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes preview-panel-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+.preview-panel-enter {
+  animation: preview-panel-enter var(--motion-overlay-enter) var(--ease-overlay-enter) both;
+}
+
+.preview-panel-exit {
+  animation: preview-panel-exit var(--motion-overlay-exit) var(--ease-overlay-exit) both;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-bottom-sheet-surface {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    max-height: 90dvh !important;
+    margin: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    box-shadow: var(--shadow-overlay) !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(1, 173, 193, 0.32);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+
+/* NBR Office Management visual baseline for NEIR.
+   Visual-only: no route, workflow, permission or data behavior changes. */
+:root {
+  --color-primary-alpha-3: rgba(1, 173, 193, 0.03);
+  --color-primary-alpha-6: rgba(1, 173, 193, 0.06);
+  --color-primary-alpha-8: rgba(1, 173, 193, 0.08);
+  --color-primary-alpha-10: rgba(1, 173, 193, 0.10);
+  --color-primary-alpha-12: rgba(1, 173, 193, 0.12);
+  --color-primary-shadow: rgba(1, 173, 193, 0.24);
+  --color-background-zebra: rgba(32, 35, 56, 0.015);
+}
+
+.neir-nbr-surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+
+/* Canonical NEIR text/action button.
+   Locked to the original Register / De-register Device primary button geometry.
+   Page-level sm/compact/h-7/px-* utilities must not shrink normal action buttons. */
+.neir-action-button {
+  height: 46px !important;
+  min-height: 46px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  border-radius: var(--field-radius) !important;
+  gap: 8px !important;
+  font-size: var(--type-button-size) !important;
+  line-height: var(--type-compact-line) !important;
+  font-weight: var(--font-weight-semibold) !important;
+}
+
+/* Table toolbar controls share one compact 40px geometry.
+   This is intentionally scoped to FilterBar so page/form action buttons remain unchanged. */
+.table-filter-bar .neir-action-button {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  border-color: var(--color-border-strong) !important;
+}
+
+
+/* Canonical mobile record separation.
+   Use the actual app background as a clearly visible separator band between records. */
+.mobile-record-stack {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-border);
+}
+
+@media (max-width: 1023px) {
+  .mobile-record-stack {
+    display: flex;
+  }
+}
+
+/* Canonical mobile table toolbar.
+   Preserve the approved pattern everywhere:
+   Search + Date stay on the same row.
+   Optional extra filters use a full-width row below. */
+.table-filter-primary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "search date"
+    "extras extras";
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.table-filter-primary.without-date-filter {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "search"
+    "extras";
+}
+
+.table-filter-search {
+  grid-area: search;
+  min-width: 0;
+  width: 100%;
+}
+
+.table-filter-extras {
+  grid-area: extras;
+  min-width: 0;
+  width: 100%;
+}
+
+.table-filter-date {
+  grid-area: date;
+  min-width: 0;
+  width: auto;
+  justify-self: end;
+}
+
+@media (max-width: 767px) {
+  .table-filter-date > .neir-action-button {
+    width: auto !important;
+    min-width: 142px;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 768px) {
+  .table-filter-primary,
+  .table-filter-primary.without-date-filter {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+  }
+
+  .table-filter-search {
+    flex: 1 1 280px;
+    min-width: 220px;
+    width: auto;
+  }
+
+  .table-filter-extras,
+  .table-filter-date {
+    flex: 0 0 auto;
+    width: auto;
+  }
+}
+
+/* Canonical mobile table-filter geometry.
+   Search, selects and date actions use one full-width 44px control system through 767px. */
+@media (max-width: 767px) {
+  .table-filter-bar .neir-action-button {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .table-filter-bar .MuiOutlinedInput-root,
+  .table-filter-bar .MuiAutocomplete-inputRoot {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+}
+
+/* Date filter trigger: pressed/open state only. Hover remains the locked neutral style. */
+.date-filter-trigger-pressed,
+.date-filter-trigger-pressed:hover {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary-dark) !important;
+}
+
+
+/* Canonical NEIR overlay motion.
+   Every modal, drawer, menu, popover and bottom sheet uses the same timing:
+   enter = 240ms ease-out, exit = 180ms ease-in. */
+.motion-overlay-backdrop,
+.motion-modal-panel,
+.motion-drawer-panel,
+.motion-dropdown-panel,
+.motion-nav-drawer,
+.motion-search-panel {
+  will-change: opacity, transform;
+}
+
+.motion-overlay-backdrop {
+  transition-property: opacity;
+}
+.motion-overlay-backdrop[data-state='open'] {
+  opacity: 1;
+  transition-duration: var(--motion-overlay-enter);
+  transition-timing-function: var(--ease-overlay-enter);
+}
+.motion-overlay-backdrop[data-state='closed'] {
+  opacity: 0;
+  pointer-events: none;
+  transition-duration: var(--motion-overlay-exit);
+  transition-timing-function: var(--ease-overlay-exit);
+}
+
+.motion-modal-panel,
+.motion-drawer-panel,
+.motion-dropdown-panel,
+.motion-nav-drawer,
+.motion-search-panel {
+  transition-property: opacity, transform;
+}
+.motion-modal-panel[data-state='open'],
+.motion-drawer-panel[data-state='open'],
+.motion-dropdown-panel[data-state='open'],
+.motion-nav-drawer[data-state='open'],
+.motion-search-panel[data-state='open'] {
+  opacity: 1;
+  transform: translate3d(0,0,0) scale(1);
+  transition-duration: var(--motion-overlay-enter);
+  transition-timing-function: var(--ease-overlay-enter);
+}
+.motion-modal-panel[data-state='closed'] {
+  opacity: 0;
+  transform: translate3d(0,8px,0) scale(.985);
+  pointer-events: none;
+  transition-duration: var(--motion-overlay-exit);
+  transition-timing-function: var(--ease-overlay-exit);
+}
+/* Detail drawer: desktop enters from the right and exits back to the right. */
+.motion-drawer-panel {
+  opacity: 1;
+  transform: translate3d(100%,0,0);
+  transition-property: transform;
+}
+.motion-drawer-panel[data-state='open'] {
+  opacity: 1;
+  transform: translate3d(0,0,0);
+  transition-duration: var(--motion-overlay-enter);
+  transition-timing-function: var(--ease-overlay-enter);
+}
+.motion-drawer-panel[data-state='closed'] {
+  opacity: 1;
+  transform: translate3d(100%,0,0);
+  pointer-events: none;
+  transition-duration: var(--motion-overlay-exit);
+  transition-timing-function: var(--ease-overlay-exit);
+}
+.motion-dropdown-panel,
+.motion-search-panel {
+  transform-origin: top right;
+}
+.motion-dropdown-panel[data-state='closed'],
+.motion-search-panel[data-state='closed'] {
+  opacity: 0;
+  transform: translate3d(0,-6px,0) scale(.985);
+  pointer-events: none;
+  transition-duration: var(--motion-overlay-exit);
+  transition-timing-function: var(--ease-overlay-exit);
+}
+.motion-nav-drawer[data-state='closed'] {
+  opacity: 0;
+  transform: translate3d(-24px,0,0);
+  pointer-events: none;
+  transition-duration: var(--motion-overlay-exit);
+  transition-timing-function: var(--ease-overlay-exit);
+}
+
+@media (max-width: 767px) {
+  .motion-modal-panel[data-state='closed'],
+  .motion-dropdown-panel[data-state='closed'],
+  .motion-search-panel[data-state='closed'] {
+    opacity: 0;
+    transform: translate3d(0,24px,0) scale(1);
+  }
+
+}
+
+/* Detail drawer: tablet/mobile enters from bottom and exits back to bottom. */
+@media (max-width: 1023px) {
+  .motion-drawer-panel {
+    transform: translate3d(0,100%,0);
+  }
+
+  .motion-drawer-panel[data-state='open'] {
+    transform: translate3d(0,0,0);
+  }
+
+  .motion-drawer-panel[data-state='closed'] {
+    transform: translate3d(0,100%,0);
+  }
+}
