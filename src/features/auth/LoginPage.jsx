@@ -69,7 +69,7 @@ export const LoginPage = () => {
                 <p className="type-label font-semibold text-[var(--color-primary-dark)]">BTRC Administrative Portal</p>
                 <h1 className="type-display text-[var(--color-text-primary)] mt-3">National Equipment Identity Register</h1>
                 <p className="type-body-lg text-[var(--color-text-secondary)] mt-4 max-w-lg">
-                  Secure administrative access for NEIR operations and regulatory workflows.
+                  {t('Administrative workspace interface for NEIR operations and regulatory workflows.')}
                 </p>
               </div>
             </div>
@@ -79,8 +79,8 @@ export const LoginPage = () => {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="type-label font-semibold text-[var(--color-text-primary)]">Authorized administrative access</p>
-                <p className="type-meta text-[var(--color-text-secondary)] mt-0.5">Sign in with your assigned NEIR office credentials.</p>
+                <p className="type-label font-semibold text-[var(--color-text-primary)]">{t('Static frontend only')}</p>
+                <p className="type-meta text-[var(--color-text-secondary)] mt-0.5">{t('Authentication and records are mock data.')}</p>
               </div>
             </div>
           </section>
@@ -109,7 +109,7 @@ export const LoginPage = () => {
                   <p className="type-meta font-semibold text-[var(--color-primary-dark)] mb-1.5 lg:hidden">{t('NEIR Admin Portal')}</p>
                   <h1 className="type-page-title text-[var(--color-text-primary)]">{t('Administrative sign in')}</h1>
                   <p className="type-body-sm text-[var(--color-text-secondary)] mt-2">
-                    {t('Sign in to access your NEIR office workspace.')}
+                    {t('This static frontend uses mock sign-in. Do not enter real credentials.')}
                   </p>
                 </div>
 
