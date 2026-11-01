@@ -5,7 +5,6 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './features/auth/AuthContext.jsx';
-import { ProtectedRoute } from './features/auth/ProtectedRoute.jsx';
 import { ToastProvider } from './components/feedback/Toast.jsx';
 import { AppShell } from './components/layout/AppShell.jsx';
 import { PreferencesProvider } from './system/PreferencesContext.jsx';
