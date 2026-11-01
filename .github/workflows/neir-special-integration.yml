@@ -15,6 +15,7 @@ jobs:
           node-version: 22
       - name: Install and build NEIR Admin
         run: |
+          cp index.source.html index.html
           npm install --no-audit --no-fund
           npm run build
       - name: Verify special-registration-only transport and guarded UI
