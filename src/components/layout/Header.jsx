@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell, ChevronDown, Menu, Settings2, User } from 'lucide-react';
 import { BtrcLogo } from './BtrcLogo.jsx';
-import { useAuth } from '../../features/auth/AuthContext.jsx';
 import { usePreferences } from '../../system/PreferencesContext.jsx';
 import { PreferencesPanel } from '../settings/PreferencesPanel.jsx';
 import { useOverlayPresence } from '../../system/useOverlayPresence.js';
@@ -12,7 +11,6 @@ export const Header = ({
   onOpenMobileNav,
   isSidebarCollapsed,
 }) => {
-  const { user } = useAuth();
   const { language, t } = usePreferences();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
