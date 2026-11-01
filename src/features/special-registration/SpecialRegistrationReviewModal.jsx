@@ -6,7 +6,7 @@ import { Textarea } from '../../components/forms/TextInput.jsx';
 import { ConfirmationDialog, Modal } from '../../components/overlays/Modal.jsx';
 import { useToast } from '../../components/feedback/Toast.jsx';
 import { usePreferences } from '../../system/PreferencesContext.jsx';
-import { mockApi } from '../../services/mockApi.js';
+import { updateSpecialApplication } from '../../services/neirSpecialRegistrationApi.js';
 import { CheckCircle2, ChevronDown, FileText, Smartphone, User, ShieldCheck, XCircle } from 'lucide-react';
 
 const CollapsibleSection = ({ title, icon: Icon, isOpen, onToggle, children }) => {
@@ -57,6 +57,7 @@ export const SpecialRegistrationReviewModal = ({
   isOpen,
   onClose,
   registration,
+  reviewerToken,
   onStatusUpdated,
 }) => {
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -166,8 +167,8 @@ export const SpecialRegistrationReviewModal = ({
   const handleApprove = async () => {
     try {
       setIsSubmitting(true);
-      await mockApi.updateSpecialRegistrationStatus(registration.id, 'Accepted', remarks);
-      addToast(`${registration.id} approved. IMEI added to White List.`, 'success');
+      await updateSpecialApplication(reviewerToken,registration.id,'Accepted',remarks);
+      addToast(`${registration.id} accepted in the NEIR demonstration register.`, 'success');
       setIsApproveOpen(false);
       onStatusUpdated && onStatusUpdated(registration.id, 'Accepted');
       handleWorkspaceClose();
@@ -185,7 +186,7 @@ export const SpecialRegistrationReviewModal = ({
     }
     try {
       setIsSubmitting(true);
-      await mockApi.updateSpecialRegistrationStatus(registration.id, 'Rejected', rejectRemarks);
+      await updateSpecialApplication(reviewerToken,registration.id,'Rejected',rejectRemarks);
       addToast(`${registration.id} rejected. Review remarks saved.`, 'info');
       setIsRejectOpen(false);
       onStatusUpdated && onStatusUpdated(registration.id, 'Rejected');
@@ -228,7 +229,7 @@ export const SpecialRegistrationReviewModal = ({
               className="w-full md:w-auto"
               onClick={() => setIsApproveOpen(true)}
             >
-              Approve & Whitelist
+              Approve Application
             </Button>
           </div>
         }
@@ -246,7 +247,7 @@ export const SpecialRegistrationReviewModal = ({
             >
               <div>
                 <ReviewDetailRow label="Full Name" value={registration.requesterName} />
-                <ReviewDetailRow label="National ID / Passport" value={registration.requesterNid} mono />
+                <ReviewDetailRow label="National ID / Passport" value={registration.requesterNid==='—'?undefined:registration.requesterNid} mono />
                 <ReviewDetailRow label="Contact Phone" value={registration.requesterPhone} mono />
                 <ReviewDetailRow label="Application Date" value={registration.date} mono />
               </div>
@@ -264,7 +265,7 @@ export const SpecialRegistrationReviewModal = ({
                 <ReviewDetailRow label="Model" value={registration.model} />
                 <ReviewDetailRow label="Device Type" value={registration.deviceType} />
                 <ReviewDetailRow label="Serial Number" value={registration.serialNumber} mono />
-                <ReviewDetailRow label="Purchase Country" value={registration.purchaseCountry} />
+                <ReviewDetailRow label="Arrival date" value={registration.arrivalDate} />
                 <ReviewDetailRow label="Customs Challan / Baggage No" value={registration.customsChallanNo} mono emphasis />
               </div>
             </CollapsibleSection>
@@ -303,20 +304,31 @@ export const SpecialRegistrationReviewModal = ({
               key={selectedDoc.id}
               className={'lg:col-span-7 min-h-0 h-full flex flex-col min-w-0 ' + (isPreviewClosing ? 'preview-panel-exit' : 'preview-panel-enter')}
             >
-              <DocumentViewerPlaceholder
-                document={selectedDoc}
-                onClosePreview={closeDesktopPreview}
-              />
+              {selectedDoc.uri ? <section className="flex flex-col h-full min-h-0 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden">
+                <div className="p-3 border-b border-[var(--color-border)] flex items-center justify-between gap-3">
+                  <p className="type-body-sm truncate font-medium">{selectedDoc.filename}</p>
+                  <div className="flex gap-2">
+                    <a href={selectedDoc.uri} download={selectedDoc.filename} target="_blank" rel="noopener noreferrer" className="text-sm underline text-[var(--color-primary-dark)]">Download</a>
+                    <button type="button" aria-label="Close document preview" className="min-h-9 px-2 border rounded-lg" onClick={closeDesktopPreview}>Close</button>
+                  </div>
+                </div>
+                {selectedDoc.filename?.toLowerCase().match(/\.(jpg|jpeg|png)$/)
+                  ? <img src={selectedDoc.uri} alt={selectedDoc.title} className="w-full h-full min-h-0 object-contain"/>
+                  : <iframe src={selectedDoc.uri} title={selectedDoc.title} className="w-full h-full min-h-[420px] border-0"/>}
+              </section> : <DocumentViewerPlaceholder document={selectedDoc} onClosePreview={closeDesktopPreview} />}
             </div>
           )}
         </div>
 
         {selectedDoc && (
           <div key={'mobile-' + selectedDoc.id} className="md:hidden h-full min-h-[calc(90dvh-64px)] bg-[var(--color-background-subtle)]">
-            <DocumentViewerPlaceholder
-              document={selectedDoc}
-              focusedMobile
-            />
+            {selectedDoc.uri ? <div className="h-full min-h-[55dvh] p-3 space-y-3">
+              <a href={selectedDoc.uri} target="_blank" rel="noopener noreferrer" download={selectedDoc.filename}
+                className="type-body-sm text-[var(--color-primary-dark)] underline">Open / download {selectedDoc.filename}</a>
+              {selectedDoc.filename?.toLowerCase().match(/\.(jpg|jpeg|png)$/)
+                ? <img src={selectedDoc.uri} alt={selectedDoc.title} className="w-full max-h-[72dvh] object-contain"/>
+                : <iframe src={selectedDoc.uri} title={selectedDoc.title} className="w-full h-[68dvh] border-0"/>}
+            </div> : <DocumentViewerPlaceholder document={selectedDoc} focusedMobile />}
           </div>
         )}
       </FullScreenWorkspace>
@@ -326,8 +338,8 @@ export const SpecialRegistrationReviewModal = ({
         onClose={() => setIsApproveOpen(false)}
         onConfirm={handleApprove}
         title="Approve Special Registration"
-        message={`Are you sure you want to approve Special Registration ${registration.id}? This will immediately broadcast IMEI ${registration.imei} to the EIR White List across Grameenphone, Robi, Banglalink, and Teletalk.`}
-        confirmLabel="Confirm & Whitelist"
+        message={`Approve Special Registration ${registration.id}? This updates the NEIR-demo application status and the citizen view; it does not broadcast to telecom operator or government systems.`}
+        confirmLabel="Confirm Approval"
         tone="primary"
         isLoading={isSubmitting}
       />
