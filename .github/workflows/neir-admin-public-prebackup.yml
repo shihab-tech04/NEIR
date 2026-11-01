@@ -1,0 +1,38 @@
+name: NEIR admin pre-public full Git recovery
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  git-restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Archive independent full history and restore exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="7bc5f3b1f852b71de722cb59b1f0ff437b5bc9cd"
+          git fetch origin main --tags
+          test "$(git rev-parse origin/main)" = "$BEFORE"
+          mkdir -p recovery
+          git bundle create recovery/NEIR-admin-pre-public-7bc5f3b1.bundle --all
+          git bundle verify recovery/NEIR-admin-pre-public-7bc5f3b1.bundle
+          git clone recovery/NEIR-admin-pre-public-7bc5f3b1.bundle /tmp/neir-restore
+          git -C /tmp/neir-restore cat-file -e "$BEFORE^{commit}"
+          for path in src/App.jsx src/features/special-registration/SpecialRegistrationPage.jsx src/features/auth/AuthContext.jsx src/services/neirSpecialRegistrationApi.js; do
+            git show "$BEFORE:$path" > /tmp/original
+            git -C /tmp/neir-restore show "$BEFORE:$path" > /tmp/restored
+            cmp /tmp/original /tmp/restored
+          done
+          (cd recovery && sha256sum NEIR-admin-pre-public-7bc5f3b1.bundle > bundle.sha256)
+          printf 'commit=%s\nrestore_test=PASS\nsource_byte_compare=PASS\n' "$BEFORE" > recovery/manifest.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEIR-admin-pre-public-restore-tested
+          path: recovery/
+          retention-days: 7
