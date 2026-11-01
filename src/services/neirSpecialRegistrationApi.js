@@ -9,7 +9,6 @@ export async function neirSpecialApi(action,payload={}){
   if(!response.ok)throw new Error(result.error||'Special Registration operation failed.');
   return result;
 }
-export const signInSpecialReviewer=(username,password)=>neirSpecialApi('reviewer_login',{username,password});
 export const listSpecialApplications=(token)=>neirSpecialApi('admin_list',{token});
 export const getSpecialApplication=(token,id)=>neirSpecialApi('admin_details',{token,id});
 export const updateSpecialApplication=(token,id,status,remarks='')=>neirSpecialApi('admin_update',{token,id,status,remarks});
