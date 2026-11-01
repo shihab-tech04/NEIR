@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FullScreenWorkspace } from '../../components/overlays/FullScreenWorkspace.jsx';
-import { DocumentList, DocumentViewerPlaceholder } from '../../components/data-display/DocumentList.jsx';
+import { DocumentViewerPlaceholder } from '../../components/data-display/DocumentList.jsx';
 import { Button } from '../../components/forms/Button.jsx';
 import { Textarea } from '../../components/forms/TextInput.jsx';
 import { ConfirmationDialog, Modal } from '../../components/overlays/Modal.jsx';
 import { useToast } from '../../components/feedback/Toast.jsx';
 import { usePreferences } from '../../system/PreferencesContext.jsx';
 import { updateSpecialApplication } from '../../services/neirSpecialRegistrationApi.js';
-import { CheckCircle2, ChevronDown, FileText, Smartphone, User, ShieldCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, ChevronDown, FileText, Smartphone, ShieldCheck, XCircle } from 'lucide-react';
 
 const CollapsibleSection = ({ title, icon: Icon, isOpen, onToggle, children }) => {
   const { t } = usePreferences();
@@ -57,7 +57,6 @@ export const SpecialRegistrationReviewModal = ({
   isOpen,
   onClose,
   registration,
-  reviewerToken,
   onStatusUpdated,
 }) => {
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -68,7 +67,6 @@ export const SpecialRegistrationReviewModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPreviewClosing, setIsPreviewClosing] = useState(false);
   const [openSections, setOpenSections] = useState({
-    requester: true,
     device: true,
     attachments: true,
     remarks: true,
@@ -167,8 +165,8 @@ export const SpecialRegistrationReviewModal = ({
   const handleApprove = async () => {
     try {
       setIsSubmitting(true);
-      await updateSpecialApplication(reviewerToken,registration.id,'Accepted',remarks);
-      addToast(`${registration.id} accepted in the NEIR demonstration register.`, 'success');
+      await updateSpecialApplication(registration.id,'Accepted',remarks);
+      addToast(`${registration.id} accepted.`, 'success');
       setIsApproveOpen(false);
       onStatusUpdated && onStatusUpdated(registration.id, 'Accepted');
       handleWorkspaceClose();
@@ -181,12 +179,12 @@ export const SpecialRegistrationReviewModal = ({
 
   const handleReject = async () => {
     if (!rejectRemarks.trim()) {
-      addToast('Please provide an official rejection reason.', 'error');
+      addToast('Please provide a rejection reason.', 'error');
       return;
     }
     try {
       setIsSubmitting(true);
-      await updateSpecialApplication(reviewerToken,registration.id,'Rejected',rejectRemarks);
+      await updateSpecialApplication(registration.id,'Rejected',rejectRemarks);
       addToast(`${registration.id} rejected. Review remarks saved.`, 'info');
       setIsRejectOpen(false);
       onStatusUpdated && onStatusUpdated(registration.id, 'Rejected');
@@ -203,7 +201,7 @@ export const SpecialRegistrationReviewModal = ({
       <FullScreenWorkspace
         isOpen={isOpen}
         onClose={handleWorkspaceClose}
-        title="Special Registration Review Dossier"
+        title="Special Registration Review"
         identifier={registration.id}
         status={registration.status}
         mobileTitle={selectedDoc ? selectedDoc.type : undefined}
@@ -240,20 +238,6 @@ export const SpecialRegistrationReviewModal = ({
             : 'w-full max-w-5xl mx-auto space-y-4'}
           >
             <CollapsibleSection
-              title="Requester & Citizen Identity"
-              icon={User}
-              isOpen={openSections.requester}
-              onToggle={() => toggleSection('requester')}
-            >
-              <div>
-                <ReviewDetailRow label="Full Name" value={registration.requesterName} />
-                <ReviewDetailRow label="National ID / Passport" value={registration.requesterNid==='—'?undefined:registration.requesterNid} mono />
-                <ReviewDetailRow label="Contact Phone" value={registration.requesterPhone} mono />
-                <ReviewDetailRow label="Application Date" value={registration.date} mono />
-              </div>
-            </CollapsibleSection>
-
-            <CollapsibleSection
               title="Device Specifications"
               icon={Smartphone}
               isOpen={openSections.device}
@@ -261,26 +245,27 @@ export const SpecialRegistrationReviewModal = ({
             >
               <div>
                 <ReviewDetailRow label="IMEI Number" value={registration.imei} mono emphasis />
-                <ReviewDetailRow label="Brand / Make" value={registration.brand} />
-                <ReviewDetailRow label="Model" value={registration.model} />
-                <ReviewDetailRow label="Device Type" value={registration.deviceType} />
-                <ReviewDetailRow label="Serial Number" value={registration.serialNumber} mono />
+                <ReviewDetailRow label="Acquisition method" value={registration.category} />
                 <ReviewDetailRow label="Arrival date" value={registration.arrivalDate} />
-                <ReviewDetailRow label="Customs Challan / Baggage No" value={registration.customsChallanNo} mono emphasis />
+                <ReviewDetailRow label="Submitted on" value={registration.date} />
               </div>
             </CollapsibleSection>
 
             <CollapsibleSection
-              title={`Dossier Attachments (${registration.attachments?.length || 0})`}
+              title={`Document Checklist (${registration.attachments?.length || 0})`}
               icon={FileText}
               isOpen={openSections.attachments}
               onToggle={() => toggleSection('attachments')}
             >
-              <DocumentList
-                documents={registration.attachments || []}
-                selectedDocId={selectedDoc?.id}
-                onSelectDoc={handleDocumentSelect}
-              />
+              <div className="space-y-2">
+                {(registration.attachments || []).map((doc) => (
+                  <div key={doc.id} className="flex items-center gap-3 min-h-11 rounded-lg border border-[var(--color-border)] px-3 py-2">
+                    <CheckCircle2 aria-hidden="true" className="h-5 w-5 shrink-0 text-green-600" />
+                    <p className="type-body-sm text-[var(--color-text-primary)]">{doc.title}</p>
+                  </div>
+                ))}
+                {!(registration.attachments?.length) && <p className="type-body-sm text-[var(--color-text-secondary)]">No documents selected.</p>}
+              </div>
             </CollapsibleSection>
 
             <CollapsibleSection
@@ -338,7 +323,7 @@ export const SpecialRegistrationReviewModal = ({
         onClose={() => setIsApproveOpen(false)}
         onConfirm={handleApprove}
         title="Approve Special Registration"
-        message={`Approve Special Registration ${registration.id}? This updates the NEIR-demo application status and the citizen view; it does not broadcast to telecom operator or government systems.`}
+        message={`Approve Special Registration ${registration.id}? This updates the application status and the citizen view.`}
         confirmLabel="Confirm Approval"
         tone="primary"
         isLoading={isSubmitting}
