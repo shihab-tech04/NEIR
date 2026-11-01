@@ -1,0 +1,38 @@
+name: NEIR admin independent pre-release recovery
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  restore-tested-git-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify full Git backup and independent restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --tags
+          BEFORE="e511dcb97f16d26cbc05ff9cc3449834c581dffc"
+          test "$(git rev-parse origin/main)" = "$BEFORE"
+          mkdir -p neir-recovery
+          git bundle create neir-recovery/admin-pre-release-e511dcb9.bundle --all
+          git bundle verify neir-recovery/admin-pre-release-e511dcb9.bundle
+          git clone neir-recovery/admin-pre-release-e511dcb9.bundle /tmp/neir-restore
+          git -C /tmp/neir-restore cat-file -e "$BEFORE^{commit}"
+          for path in src/features/special-registration/SpecialRegistrationPage.jsx src/features/special-registration/SpecialRegistrationReviewModal.jsx; do
+            git show "$BEFORE:$path" > /tmp/pre-release-file
+            git -C /tmp/neir-restore show "$BEFORE:$path" > /tmp/independent-restore-file
+            cmp /tmp/pre-release-file /tmp/independent-restore-file
+          done
+          (cd neir-recovery && sha256sum admin-pre-release-e511dcb9.bundle > bundle.sha256)
+          printf 'pre_release_commit=%s\nrepository=shihab-tech04/NEIR\nrestore_test=PASS\nsource_byte_comparison=PASS\n' "$BEFORE" > neir-recovery/manifest.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEIR-admin-pre-release-full-Git
+          path: neir-recovery/
+          retention-days: 7
