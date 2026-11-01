@@ -10,7 +10,6 @@ import { ToastProvider } from './components/feedback/Toast.jsx';
 import { AppShell } from './components/layout/AppShell.jsx';
 import { PreferencesProvider } from './system/PreferencesContext.jsx';
 
-import { LoginPage } from './features/auth/LoginPage.jsx';
 import { DashboardPage } from './features/dashboard/DashboardPage.jsx';
 import { SpecialRegistrationPage } from './features/special-registration/SpecialRegistrationPage.jsx';
 import { LostStolenPage } from './features/lost-stolen/LostStolenPage.jsx';
@@ -39,14 +38,12 @@ export default function App() {
         <AuthProvider>
           <ToastProvider>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
+              <Route path="/login" element={<Navigate to="/dashboard" replace />} />
 
               <Route
                 path="/"
                 element={
-                  <ProtectedRoute>
-                    <AppShell />
-                  </ProtectedRoute>
+                  <AppShell />
                 }
               >
                 <Route index element={<Navigate to="/dashboard" replace />} />
