@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './features/auth/AuthContext.jsx';
 import { ToastProvider } from './components/feedback/Toast.jsx';
 import { AppShell } from './components/layout/AppShell.jsx';
 import { PreferencesProvider } from './system/PreferencesContext.jsx';
@@ -34,8 +33,7 @@ export default function App() {
   return (
     <HashRouter>
       <PreferencesProvider>
-        <AuthProvider>
-          <ToastProvider>
+        <ToastProvider>
             <Routes>
               <Route path="/login" element={<Navigate to="/dashboard" replace />} />
 
@@ -76,8 +74,7 @@ export default function App() {
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
-          </ToastProvider>
-        </AuthProvider>
+        </ToastProvider>
       </PreferencesProvider>
     </HashRouter>
   );
