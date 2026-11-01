@@ -222,10 +222,7 @@ export const banglaTranslations = {
   ' or drag and drop': ' অথবা ড্র্যাগ করে ছেড়ে দিন',
   'Click or drag file to attach': 'ফাইল সংযুক্ত করতে ক্লিক করুন বা ড্র্যাগ করুন',
   'Supported files: PDF, PNG, JPG up to 10MB': 'সমর্থিত ফাইল: PDF, PNG, JPG সর্বোচ্চ 10MB',
-  'Administrative sign in': 'অ্যাডমিন সাইন ইন',
   'Administrative workspace interface for NEIR operations and regulatory workflows.': 'NEIR কার্যক্রম ও নিয়ন্ত্রক কাজের জন্য প্রশাসনিক ওয়ার্কস্পেস ইন্টারফেস।',
-  'Sign in': 'সাইন ইন',
-  'Remember this browser': 'এই ব্রাউজার মনে রাখুন',
   'NEIR Admin Portal': 'NEIR অ্যাডমিন পোর্টাল',
   'Bangladesh Telecommunication Regulatory Commission': 'বাংলাদেশ টেলিযোগাযোগ নিয়ন্ত্রণ কমিশন',
   'Sign in to access your NEIR office workspace.': 'আপনার NEIR অফিস ওয়ার্কস্পেসে প্রবেশ করতে সাইন ইন করুন।'
