@@ -1,0 +1,60 @@
+name: NEIR anonymous prototype live SQL lifecycle acceptance
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Verify Citizen submit, Admin list, review, Citizen status sync
+        shell: bash
+        env:
+          RUN_IDENTIFIER: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import urllib.request,urllib.error,json,os,datetime
+          endpoint='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-prototype-special'
+          run=os.environ['RUN_IDENTIFIER'][-11:].rjust(11,'0')
+          imei_accepted='98'+run+'00'
+          imei_rejected='97'+run+'00'
+          assert len(imei_accepted)==15 and len(imei_rejected)==15
+          def call(action,**data):
+              body=json.dumps({'action':action,**data}).encode()
+              request=urllib.request.Request(endpoint,data=body,method='POST',headers={
+                'Content-Type':'application/json','Origin':'https://shihab-tech04.github.io'})
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response:
+                      return response.status,json.loads(response.read())
+              except urllib.error.HTTPError as err:
+                  raise AssertionError(action+' HTTP '+str(err.code)+': '+err.read().decode()[:200])
+          _,initial=call('citizen_list')
+          assert isinstance(initial.get('items'),list)
+          for imei,status,reason in ((imei_accepted,'Accepted','airmail'),(imei_rejected,'Rejected','gift')):
+              docs=['commercialInvoice'] if reason=='airmail' else ['donorPassport','donorArrivalSeal','imeiBox','giftDeed']
+              code,created=call('submit',imei=imei,reason=reason,arrivalDate='2026-10-20',documents=docs)
+              assert code==201 and created.get('record',{}).get('status')=='Pending'
+              app_id=created['record']['id']
+              _,admin=call('admin_list')
+              assert any(x['id']==app_id and x['status']=='Pending' for x in admin['items']),'Admin list missing Citizen submission'
+              _,detail=call('admin_details',id=app_id)
+              assert detail['record']['imei']==imei and len(detail['record']['documents'])==len(docs),'Admin details missing checklist'
+              _,review=call('admin_update',id=app_id,status=status,remarks='Reviewed')
+              assert review['record']['status']==status,'Admin SQL review not persisted'
+              _,citizen=call('citizen_list')
+              found=[x for x in citizen['items'] if x['id']==app_id]
+              assert len(found)==1 and found[0]['status']==status,'Citizen status not synchronized'
+              print('PASS Citizen → SQL → Admin → SQL → Citizen',imei,status,app_id)
+          # Confirm the public workflow is separated from private historical records.
+          private='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-special-registration'
+          req=urllib.request.Request(private,data=json.dumps({'action':'admin_list'}).encode(),method='POST',
+            headers={'Content-Type':'application/json','Origin':'https://shihab-tech04.github.io'})
+          try:
+              urllib.request.urlopen(req,timeout=20)
+              raise AssertionError('Private historical records unexpectedly accessible')
+          except urllib.error.HTTPError as err:
+              assert err.code==401,err.code
+          print('PASS prior private-identity application API remains inaccessible')
+          PY
