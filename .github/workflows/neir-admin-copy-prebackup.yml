@@ -1,0 +1,38 @@
+name: NEIR Admin cleanup pre-release full Git backup
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify independent full-history restoration
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="6c5c0ed77b94fe1365bd5750db13ee9366efa04d"
+          git fetch origin main --tags
+          test "$(git rev-parse origin/main)" = "$BEFORE"
+          mkdir -p recovery
+          git bundle create recovery/NEIR-admin-pre-copy-cleanup-6c5c0ed7.bundle --all
+          git bundle verify recovery/NEIR-admin-pre-copy-cleanup-6c5c0ed7.bundle
+          git clone recovery/NEIR-admin-pre-copy-cleanup-6c5c0ed7.bundle /tmp/neir-restored
+          git -C /tmp/neir-restored cat-file -e "$BEFORE^{commit}"
+          for path in src/system/translations.js src/App.jsx src/features/special-registration/SpecialRegistrationPage.jsx; do
+            git show "$BEFORE:$path" >/tmp/original
+            git -C /tmp/neir-restored show "$BEFORE:$path" >/tmp/restored
+            cmp /tmp/original /tmp/restored
+          done
+          (cd recovery && sha256sum NEIR-admin-pre-copy-cleanup-6c5c0ed7.bundle > bundle.sha256)
+          printf 'commit=%s\nrestore_test=PASS\nbyte_compare=PASS\n' "$BEFORE" > recovery/manifest.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEIR-admin-pre-copy-cleanup-restore-tested
+          path: recovery/
+          retention-days: 7
