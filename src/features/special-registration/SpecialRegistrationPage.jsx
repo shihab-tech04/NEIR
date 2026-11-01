@@ -8,7 +8,7 @@ import { Button } from '../../components/forms/Button.jsx';
 import { DateRangeFilter } from '../../components/forms/DateRangeFilter.jsx';
 import { StatusBadge } from '../../components/data-display/StatusBadge.jsx';
 import { SpecialRegistrationReviewModal } from './SpecialRegistrationReviewModal.jsx';
-import { listSpecialApplications, getSpecialApplication, SPECIAL_REVIEW_SESSION_KEY } from '../../services/neirSpecialRegistrationApi.js';
+import { listSpecialApplications, getSpecialApplication } from '../../services/neirSpecialRegistrationApi.js';
 import { useToast } from '../../components/feedback/Toast.jsx';
 import { Eye, Download } from 'lucide-react';
 
@@ -36,20 +36,9 @@ export const SpecialRegistrationPage = () => {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const isMobileFeed = useMediaQuery('(max-width:1023px)');
   const { addToast } = useToast();
-  const [reviewToken,setReviewToken]=useState(()=>window.sessionStorage.getItem(SPECIAL_REVIEW_SESSION_KEY)||'');
   const [loadError,setLoadError]=useState('');
   const [hasApplications,setHasApplications]=useState(false);
   const [loadingDetail,setLoadingDetail]=useState(false);
-
-  // The existing Admin shell is the only entry. Never ask for a second
-  // reviewer username/password on this page. The current Admin login is
-  // a local preview session, so it MUST NOT be promoted to a SQL review token.
-  const clearExpiredReviewSession=()=>{
-    window.sessionStorage.removeItem(SPECIAL_REVIEW_SESSION_KEY);
-    setReviewToken('');
-    setData([]);setTotal(0);setHasApplications(false);setSelectedItem(null);
-    setStatusCounts(DEFAULT_STATUS_COUNTS);
-  };
 
   const statusTabs = [
     { id: 'All', label: 'All Applications', count: statusCounts.All ?? 0 },
@@ -60,18 +49,9 @@ export const SpecialRegistrationPage = () => {
   ];
 
   const loadRegistrations = async () => {
-    if(!reviewToken){
-      // A mock portal session cannot authorize access to private applications.
-      // Show an honest connection state instead of an extra password form
-      // or fabricated SQL records; keep the rest of NEIR Admin unchanged.
-      setIsLoading(false);
-      setHasApplications(false);
-      setLoadError('Live Special Registration records are unavailable in this Admin preview.');
-      return;
-    }
     try{
       setIsLoading(true);setLoadError('');
-      const result=await listSpecialApplications(reviewToken);
+      const result=await listSpecialApplications();
       const applications=result.items||[];
       setHasApplications(applications.length>0);
       let rows=applications;
@@ -93,20 +73,18 @@ export const SpecialRegistrationPage = () => {
     }catch(err){
       const message=err instanceof Error?err.message:'Failed to load applications.';
       setLoadError(message);setData([]);setTotal(0);setStatusCounts(DEFAULT_STATUS_COUNTS);
-      if(/sign in again|expired/i.test(message))clearExpiredReviewSession();
     }finally{setIsLoading(false);}
   };
 
-  useEffect(() => {void loadRegistrations();},[reviewToken,statusFilter,searchTerm,fromDate,toDate,page,pageSize,isMobileFeed]);
+  useEffect(() => {void loadRegistrations();},[statusFilter,searchTerm,fromDate,toDate,page,pageSize,isMobileFeed]);
 
   const handleOpenReview = async (item) => {
     if(loadingDetail)return;
     setLoadingDetail(true);
     try{
-      const detail=await getSpecialApplication(reviewToken,item.id);
+      const detail=await getSpecialApplication(item.id);
       const record=detail.record;
       setSelectedItem({...record,
-        requesterPhone:record.citizenMobile,
         attachments:record.documents||[],
       });
       setIsReviewOpen(true);
@@ -137,15 +115,11 @@ export const SpecialRegistrationPage = () => {
       render: (val) => <p className="type-meta text-[var(--color-text-primary)]">{val}</p>,
     },
     {
-      key: 'requesterName',
-      title: 'Requester / NID',
+      key: 'arrivalDate',
+      title: 'Arrival Date',
       minWidth: '230px',
-      render: (val, row) => (
-        <div className="flex flex-col">
-          <p className="font-medium text-[var(--color-text-primary)]">{val}</p>
-          <p className="type-meta text-[var(--color-text-muted)] font-mono">{row.requesterNid}</p>
-        </div>
-      ),
+      isMono: true,
+      render: (val) => <p className="type-meta text-[var(--color-text-primary)]">{val || '—'}</p>,
     },
     {
       key: 'status',
@@ -184,7 +158,7 @@ export const SpecialRegistrationPage = () => {
   return (
     <div className="space-y-4">
       {loadError && <div role="alert" className="p-3 rounded-lg border border-[var(--color-error-border)] bg-[var(--color-error-bg)] text-[var(--color-text-primary)]">
-        {loadError}{reviewToken && <button type="button" onClick={loadRegistrations} className="ml-2 underline">Retry</button>}
+        {loadError} <button type="button" onClick={loadRegistrations} className="ml-2 underline">Retry</button>
       </div>}
       {/* Page Header */}
       <PageHeader
@@ -201,7 +175,7 @@ export const SpecialRegistrationPage = () => {
           >
             Export List
           </Button>
-          <Button variant="outline" size="sm" disabled={!reviewToken} onClick={loadRegistrations}>Refresh</Button></>
+          <Button variant="outline" size="sm" onClick={loadRegistrations}>Refresh</Button></>
         }
       />
 
@@ -219,7 +193,7 @@ export const SpecialRegistrationPage = () => {
           <FilterBar embedded
                   searchPlaceholder="Search applications..."
                   searchValue={searchTerm}
-                  searchSuggestions={data.flatMap((item) => [item.imei, item.brand, item.model, item.requesterName, item.requesterNid])}
+                  searchSuggestions={data.flatMap((item) => [item.imei, item.category, item.status])}
                   onSearchChange={setSearchTerm}
                   onReset={() => {
                     setSearchTerm('');
@@ -268,9 +242,9 @@ export const SpecialRegistrationPage = () => {
                     subtitle={`${row.brand} ${row.model}`}
                     status={row.status}
                     fields={[
-                      { label: 'Requester', value: row.requesterName },
+                      { label: 'Arrival Date', value: row.arrivalDate },
                       { label: 'Category', value: row.category },
-                      { label: 'Challan No', value: row.customsChallanNo, isMono: true },
+                      { label: 'IMEI', value: row.imei, isMono: true },
                     ]}
                     footerMeta={row.date}
                   />
@@ -291,7 +265,6 @@ export const SpecialRegistrationPage = () => {
             setSelectedItem(null);
           }}
           registration={selectedItem}
-          reviewerToken={reviewToken}
           onStatusUpdated={handleStatusUpdated}
         />
       )}
