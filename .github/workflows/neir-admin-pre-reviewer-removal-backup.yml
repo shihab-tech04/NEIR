@@ -1,0 +1,38 @@
+name: NEIR Admin pre-reviewer-removal independent Git restore
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  restore-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Archive and restore exact pre-release main
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="69481ac7efb026ee8dd08a22db880389aae7bb13"
+          git fetch origin main --tags
+          test "$(git rev-parse origin/main)" = "$BASE"
+          mkdir -p recovery
+          git bundle create recovery/NEIR-admin-pre-reviewer-removal-69481ac7.bundle --all
+          git bundle verify recovery/NEIR-admin-pre-reviewer-removal-69481ac7.bundle
+          git clone recovery/NEIR-admin-pre-reviewer-removal-69481ac7.bundle /tmp/neir-admin-restore
+          git -C /tmp/neir-admin-restore cat-file -e "$BASE^{commit}"
+          for p in src/features/special-registration/SpecialRegistrationPage.jsx src/services/neirSpecialRegistrationApi.js src/features/special-registration/SpecialRegistrationReviewModal.jsx src/features/auth/AuthContext.jsx; do
+            git show "$BASE:$p" > /tmp/neir-admin-source
+            git -C /tmp/neir-admin-restore show "$BASE:$p" > /tmp/neir-admin-restored
+            cmp /tmp/neir-admin-source /tmp/neir-admin-restored
+          done
+          (cd recovery && sha256sum NEIR-admin-pre-reviewer-removal-69481ac7.bundle > bundle.sha256)
+          printf 'repository=shihab-tech04/NEIR\\npre_release_sha=%s\\nrestore_test=PASS\\nsource_compare=PASS\\n' "$BASE" > recovery/manifest.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEIR-admin-pre-reviewer-removal-full-git-restore-tested
+          path: recovery/
+          retention-days: 7
