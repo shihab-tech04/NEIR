@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { X, ChevronDown, ChevronRight, LogOut } from 'lucide-react';
+import { X, ChevronDown, ChevronRight } from 'lucide-react';
 import { navigationItems } from './Sidebar.jsx';
 import { BtrcLogo } from './BtrcLogo.jsx';
-import { useAuth } from '../../features/auth/AuthContext.jsx';
 import { usePreferences } from '../../system/PreferencesContext.jsx';
 import { useOverlayPresence } from '../../system/useOverlayPresence.js';
 
@@ -11,7 +10,6 @@ const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]
 
 export const MobileNavigationDrawer = ({ isOpen, onClose }) => {
   const location = useLocation();
-  const { user, logout } = useAuth();
   const { t } = usePreferences();
   const [openSubmenus, setOpenSubmenus] = useState({});
   const presence = useOverlayPresence(isOpen);
@@ -80,8 +78,8 @@ export const MobileNavigationDrawer = ({ isOpen, onClose }) => {
         </div>
 
         <div className="px-4 py-3 bg-[var(--color-background-subtle)] border-b border-[var(--color-border)]">
-          <p className="type-label font-semibold">{user?.fullName || t('BTRC Operator')}</p>
-          <p className="type-meta text-[var(--color-text-secondary)] mt-0.5">{user?.role || t('Super Admin')}</p>
+          <p className="type-label font-semibold">{t('NEIR Admin')}</p>
+          <p className="type-meta text-[var(--color-text-secondary)] mt-0.5">{t('Admin')}</p>
         </div>
 
         <nav className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-1" aria-label={t('Navigation')}>
@@ -156,16 +154,7 @@ export const MobileNavigationDrawer = ({ isOpen, onClose }) => {
           })}
         </nav>
 
-        <div className="p-3 pb-[max(12px,env(safe-area-inset-bottom))] border-t border-[var(--color-border)]">
-          <button
-            type="button"
-            onClick={logout}
-            className="w-full min-h-11 flex items-center justify-center gap-2 px-3 rounded-[var(--radius-md)] bg-[var(--color-error-bg)] text-[var(--color-error)] border border-[var(--color-error-border)] type-nav font-medium hover:bg-[var(--color-error-bg)]"
-          >
-            <LogOut className="w-4 h-4" />
-            <p>{t('Sign Out')}</p>
-          </button>
-        </div>
+
       </div>
     </div>
   );
