@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, KeyRound, LogOut, Menu, Settings2, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Bell, ChevronDown, Menu, Settings2, User } from 'lucide-react';
 import { BtrcLogo } from './BtrcLogo.jsx';
 import { useAuth } from '../../features/auth/AuthContext.jsx';
-import { useToast } from '../feedback/Toast.jsx';
 import { usePreferences } from '../../system/PreferencesContext.jsx';
 import { PreferencesPanel } from '../settings/PreferencesPanel.jsx';
 import { useOverlayPresence } from '../../system/useOverlayPresence.js';
@@ -13,10 +12,8 @@ export const Header = ({
   onOpenMobileNav,
   isSidebarCollapsed,
 }) => {
-  const { user, logout } = useAuth();
-  const { addToast } = useToast();
+  const { user } = useAuth();
   const { language, t } = usePreferences();
-  const navigate = useNavigate();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -38,11 +35,6 @@ export const Header = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSignOut = () => {
-    logout();
-    addToast('Signed out successfully.', 'info');
-    navigate('/login');
-  };
 
   useEffect(() => {
     const anyPopupOpen = preferencesOpen || notificationsOpen || profileMenuOpen;
@@ -209,29 +201,8 @@ export const Header = ({
                     <p>{t('User directory')}</p>
                   </Link>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileMenuOpen(false);
-                      addToast('Password management is not available from this menu.', 'info');
-                    }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-[var(--color-primary-light)] text-left cursor-pointer"
-                  >
-                    <KeyRound className="w-4 h-4 text-[var(--color-text-secondary)]" />
-                    <p>{t('Change password')}</p>
-                  </button>
                 </div>
 
-                <div className="border-t border-[var(--color-border)] py-1 pb-[max(4px,env(safe-area-inset-bottom))]">
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-[var(--color-error-bg)] text-[var(--color-error)] type-label text-left cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <p>{t('Sign out')}</p>
-                  </button>
-                </div>
               </div>
             </>
           )}

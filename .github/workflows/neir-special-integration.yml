@@ -18,7 +18,7 @@ jobs:
           cp index.source.html index.html
           npm install --no-audit --no-fund
           npm run build
-      - name: Verify special-registration-only transport and guarded UI
+      - name: Verify no-login Special Registration table and review transport
         run: |
           node --input-type=module <<'EOF'
           import { readFileSync } from 'node:fs';
@@ -30,25 +30,32 @@ jobs:
           assert(page.includes('{hasApplications && <TablePageWorkspace'), 'real application table is conditional on stored submissions');
           assert(page.includes('listSpecialApplications'), 'SQL application read missing');
           assert(page.includes('getSpecialApplication'), 'SQL details missing');
-          assert(page.includes('reviewToken'), 'verified server review token required');
-          assert(page.includes('Live Special Registration records are unavailable in this Admin preview.'), 'must not display fake SQL data if Admin session is a mock');
+          assert(!page.includes('reviewToken') && !page.includes('Review password'), 'no reviewer authorization state');
+          assert(!page.includes('Live Special Registration records are unavailable in this Admin preview.'), 'stale reviewer access failure');
           assert(!page.includes('mockApi'), 'special page must not read mock registrations');
           assert(review.includes('updateSpecialApplication'), 'review persistence missing');
           assert(!review.includes('mockApi'), 'review actions must not be mock');
           assert(!review.includes('broadcast IMEI'), 'false EIR broadcast claim');
-          assert(!api.includes('reviewer_login'), 'no second login transport in the Admin frontend');
+          assert(!api.includes('token') && !api.includes('reviewer_login'), 'no authentication in Special Registration transport');
+          assert(api.includes('neir-prototype-special'), 'shared public application source missing');
           assert(api.includes('admin_list') && api.includes('admin_details') && api.includes('admin_update'), 'backend sync endpoints missing');
           console.log('PASS: scoped Special Registration admin integrity and build');
           EOF
-      - name: Check deployed NEIR-demo API denies anonymous admin records
+      - name: Check public Special Registration sync while private records remain inaccessible
         run: |
           node --input-type=module <<'EOF'
           import { strict as assert } from 'node:assert';
-          const url='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-special-registration';
-          const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://shihab-tech04.github.io'},body:JSON.stringify({action:'admin_list'})});
-          assert.equal(response.status,401,'admin list without signed reviewer token must be rejected');
-          assert.equal(response.headers.get('access-control-allow-origin'),'https://shihab-tech04.github.io','live CORS origin');
-          const result=await response.json();
-          assert.equal(typeof result.error,'string');
-          console.log('PASS: live NEIR-demo registration endpoint rejects anonymous Admin access');
+          const origin='https://shihab-tech04.github.io';
+          const root='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/';
+          const post=(path,action)=>fetch(root+path,{
+            method:'POST',headers:{'Content-Type':'application/json',Origin:origin},
+            body:JSON.stringify({action})
+          });
+          const open=await post('neir-prototype-special','admin_list');
+          assert.equal(open.status,200,'open Special Registration read must work without login');
+          const data=await open.json();
+          assert(Array.isArray(data.items),'shared application list unavailable');
+          const privateResponse=await post('neir-special-registration','admin_list');
+          assert.equal(privateResponse.status,401,'old private Citizen records must remain inaccessible');
+          console.log('PASS: public Special Registration loads; private Citizen data remains protected');
           EOF
