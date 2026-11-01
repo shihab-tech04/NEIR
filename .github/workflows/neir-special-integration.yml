@@ -37,3 +37,15 @@ jobs:
           assert(api.includes('reviewer_login') && api.includes('admin_update'), 'backend sync endpoints missing');
           console.log('PASS: scoped Special Registration admin integrity and build');
           EOF
+      - name: Check deployed NEIR-demo API denies anonymous admin records
+        run: |
+          node --input-type=module <<'EOF'
+          import { strict as assert } from 'node:assert';
+          const url='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-special-registration';
+          const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://shihab-tech04.github.io'},body:JSON.stringify({action:'admin_list'})});
+          assert.equal(response.status,401,'admin list without signed reviewer token must be rejected');
+          assert.equal(response.headers.get('access-control-allow-origin'),'https://shihab-tech04.github.io','live CORS origin');
+          const result=await response.json();
+          assert.equal(typeof result.error,'string');
+          console.log('PASS: live NEIR-demo registration endpoint rejects anonymous Admin access');
+          EOF
