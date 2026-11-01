@@ -1,0 +1,51 @@
+name: Verify NEIR identity-free published Citizen and Admin
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Read real public bundles and active identity-free SQL API
+        shell: bash
+        run: |
+          python - <<'PY'
+          import urllib.request,urllib.error,json,re,time
+          host='https://shihab-tech04.github.io'
+          for label,path,markers,forbidden in (
+            ('Admin','/NEIR/',('neir-prototype-special','No Special Registration applications yet','Admin'),
+                ('neir_admin_session','Reviewer password','Live Special Registration records are unavailable')),
+            ('Citizen','/NEIR-Citizen/',('neir-prototype-special','This handset is greylisted','My Profile'),
+                ('The sample record shows a greylisted handset','not a live government NEIR status check'))
+          ):
+            for trial in range(15):
+              try:
+                uri=host+path
+                html=urllib.request.urlopen(uri+'?verify='+str(trial),timeout=25).read().decode()
+                scripts=re.findall(r'<script[^>]+src="([^"]+\.js)"',html)
+                assert scripts,label+' JS asset unavailable'
+                js=''.join(urllib.request.urlopen(host+s if s.startswith('/') else uri+s,timeout=30).read().decode() for s in scripts)
+                missing=[k for k in markers if k not in js]
+                present=[k for k in forbidden if k in js]
+                assert not missing and not present,label+' missing='+str(missing)+' forbidden='+str(present)
+                print('PASS deployed '+label+' identity-free UI and direct Special Registration transport')
+                break
+              except Exception as e:
+                if trial==14: raise
+                time.sleep(5)
+          actual=json.load(urllib.request.urlopen(host+'/NEIR/version.json?verify=authless',timeout=20))
+          assert actual.get('build')=='13b3e4976e22753cf26de080ad953c4cb9645140',actual
+          print('PASS exact published Admin build 13b3e497')
+          endpoint='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-prototype-special'
+          for action in ('citizen_list','admin_list'):
+            request=urllib.request.Request(endpoint,data=json.dumps({'action':action}).encode(),method='POST',
+              headers={'Content-Type':'application/json','Origin':host})
+            with urllib.request.urlopen(request,timeout=30) as response:
+              assert response.status==200
+              body=json.load(response)
+              assert isinstance(body.get('items'),list)
+              print('PASS '+action+' anonymous identity-free SQL read')
+          PY
