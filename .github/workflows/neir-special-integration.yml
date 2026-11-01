@@ -1,0 +1,51 @@
+name: NEIR Special Registration admin integration checks
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  scoped-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and build NEIR Admin
+        run: |
+          cp index.source.html index.html
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Verify special-registration-only transport and guarded UI
+        run: |
+          node --input-type=module <<'EOF'
+          import { readFileSync } from 'node:fs';
+          import { strict as assert } from 'node:assert';
+          const page=readFileSync('src/features/special-registration/SpecialRegistrationPage.jsx','utf8');
+          const review=readFileSync('src/features/special-registration/SpecialRegistrationReviewModal.jsx','utf8');
+          const api=readFileSync('src/services/neirSpecialRegistrationApi.js','utf8');
+          assert(page.includes('signInReviewer'), 'reviewer sign-in gate missing');
+          assert(page.includes('listSpecialApplications'), 'SQL application read missing');
+          assert(page.includes('getSpecialApplication'), 'SQL details missing');
+          assert(page.includes('reviewToken'), 'review role token missing');
+          assert(!page.includes('mockApi'), 'special page must not read mock registrations');
+          assert(review.includes('updateSpecialApplication'), 'review persistence missing');
+          assert(!review.includes('mockApi'), 'review actions must not be mock');
+          assert(!review.includes('broadcast IMEI'), 'false EIR broadcast claim');
+          assert(api.includes('reviewer_login') && api.includes('admin_update'), 'backend sync endpoints missing');
+          console.log('PASS: scoped Special Registration admin integrity and build');
+          EOF
+      - name: Check deployed NEIR-demo API denies anonymous admin records
+        run: |
+          node --input-type=module <<'EOF'
+          import { strict as assert } from 'node:assert';
+          const url='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-special-registration';
+          const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://shihab-tech04.github.io'},body:JSON.stringify({action:'admin_list'})});
+          assert.equal(response.status,401,'admin list without signed reviewer token must be rejected');
+          assert.equal(response.headers.get('access-control-allow-origin'),'https://shihab-tech04.github.io','live CORS origin');
+          const result=await response.json();
+          assert.equal(typeof result.error,'string');
+          console.log('PASS: live NEIR-demo registration endpoint rejects anonymous Admin access');
+          EOF
