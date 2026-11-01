@@ -1,0 +1,50 @@
+name: Verify public NEIR Admin removes extra reviewer login
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Verify public Pages release, compiled UI and Admin SQL privacy
+        shell: bash
+        run: |
+          python - <<'PY'
+          import urllib.request,urllib.error,json,re,time
+          root='https://shihab-tech04.github.io'
+          uri=root+'/NEIR/'
+          expected='fca3e4c9499edc6d493bf2a99975fbc7c1ff3611'
+          for attempt in range(40):
+              try:
+                  request=urllib.request.Request(uri+'version.json?verify='+str(attempt),headers={'Cache-Control':'no-cache'})
+                  current=json.load(urllib.request.urlopen(request,timeout=30))
+                  assert current.get('build')==expected,'Unexpected deployed source '+str(current)
+                  html=urllib.request.urlopen(uri+'?verify='+str(attempt),timeout=30).read().decode()
+                  assert 'meta name="neir-build" content="'+expected+'"' in html
+                  scripts=re.findall(r'<script[^>]+src="([^"]+\.js)"',html)
+                  assert scripts,'missing compiled JS asset'
+                  bundle=''.join(urllib.request.urlopen(root+s if s.startswith('/') else uri+s,timeout=30).read().decode() for s in scripts)
+                  assert 'Live Special Registration records are unavailable in this Admin preview.' in bundle,'new Special Registration data state missing'
+                  assert 'No Special Registration applications yet' in bundle,'no-application empty state missing'
+                  assert 'Reviewer password' not in bundle,'unrequested reviewer password is still public'
+                  assert 'neir-special-reviewer' not in bundle,'unrequested reviewer credentials are bundled'
+                  assert 'admin_list' in bundle and 'admin_update' in bundle,'existing private SQL contract was lost'
+                  print('PASS: public deployment version matches '+expected[:8]+' and reviewer login is absent')
+                  break
+              except Exception as err:
+                  if attempt == 39: raise
+                  print('waiting for published version:',str(err)[:110])
+                  time.sleep(7)
+          endpoint='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/neir-special-registration'
+          req=urllib.request.Request(endpoint,data=json.dumps({'action':'admin_list'}).encode(),method='POST',
+            headers={'Content-Type':'application/json','Origin':'https://shihab-tech04.github.io'})
+          try:
+              urllib.request.urlopen(req,timeout=30)
+              raise AssertionError('private Special Registration records were publicly readable')
+          except urllib.error.HTTPError as err:
+              assert err.code == 401,'anonymous admin access must be 401, got '+str(err.code)
+              print('PASS: SQL-bound review endpoint still denies anonymous Admin access')
+          PY
