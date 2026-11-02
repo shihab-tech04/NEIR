@@ -77,6 +77,9 @@ jobs:
           assert(!page.includes('Live Special Registration records are unavailable in this Admin preview.'), 'stale reviewer access failure');
           assert(!page.includes('mockApi'), 'special page must not read mock registrations');
           assert(review.includes('updateSpecialApplication'), 'review persistence missing');
+          assert(review.includes('handleDocumentSelect(doc)'), 'document rows must open real uploads');
+          assert(review.includes('disabled={!doc.uri}'), 'missing files must never open a fake preview');
+          assert(review.includes('doc.filename'), 'exact uploaded filenames missing from Admin review');
           assert(!review.includes('mockApi'), 'review actions must not be mock');
           assert(!review.includes('broadcast IMEI'), 'false EIR broadcast claim');
           assert(!api.includes('token') && !api.includes('reviewer_login'), 'no authentication in Special Registration transport');
