@@ -12,6 +12,8 @@ export const Header = ({
   isSidebarCollapsed,
 }) => {
   const { language, t } = usePreferences();
+  // Display-only identity; the NEIR prototype intentionally has no sign-in state.
+  const displayName = 'NEIR Admin';
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -159,14 +161,14 @@ export const Header = ({
             aria-expanded={profileMenuOpen}
           >
             <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] flex items-center justify-center type-meta font-bold border border-[var(--color-border)]">
-              <p>{user?.fullName?.charAt(0)?.toUpperCase() || 'A'}</p>
+              <p>{displayName.charAt(0)}</p>
             </div>
             <div className="hidden md:flex flex-col">
               <p className="type-label font-semibold leading-tight truncate max-w-[150px]">
-                {user?.fullName || t('Admin user')}
+                {displayName}
               </p>
               <p className="type-meta text-[var(--color-text-secondary)] leading-tight truncate max-w-[150px]">
-                {user?.role || 'Admin'}
+                {'Admin'}
               </p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-[var(--color-text-secondary)] hidden md:block" />
@@ -183,9 +185,9 @@ export const Header = ({
               />
               <div data-state={profilePresence.state} className="motion-dropdown-panel mobile-bottom-sheet mobile-bottom-sheet-surface fixed inset-x-0 bottom-0 z-50 w-full bg-white rounded-t-[20px] rounded-b-none border border-[var(--color-border)] border-x-0 border-b-0 py-1.5 shadow-[var(--shadow-overlay)] md:absolute md:inset-auto md:right-0 md:mt-2 md:w-60 md:rounded-xl md:border md:shadow-[var(--shadow-lg)]">
                 <div className="px-4 py-3 border-b border-[var(--color-border)] bg-[var(--color-background-subtle)]">
-                  <p className="type-label font-semibold truncate">{user?.fullName || t('Admin user')}</p>
+                  <p className="type-label font-semibold truncate">{displayName}</p>
                   <p className="type-meta text-[var(--color-text-secondary)] truncate mt-0.5">
-                    {user?.email || user?.username || 'NEIR Admin'}
+                    {displayName}
                   </p>
                 </div>
 
