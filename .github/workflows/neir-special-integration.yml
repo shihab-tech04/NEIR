@@ -47,7 +47,12 @@ jobs:
               page.on('pageerror',error=>errors.push(error.message));
               await page.goto('http://127.0.0.1:4173/NEIR/#/special-registration',{waitUntil:'domcontentloaded',timeout:30000});
               await page.getByRole('heading',{name:'Special Registration'}).first().waitFor({timeout:25000});
-              await page.locator('header').getByText('NEIR Admin').first().waitFor({timeout:15000});
+              if (label === 'mobile') {
+                await page.getByRole('button',{name:'Navigation'}).first().click();
+                await page.getByRole('dialog',{name:'Navigation'}).getByText('NEIR Admin').waitFor({timeout:15000});
+              } else {
+                await page.locator('header').getByText('NEIR Admin').first().waitFor({timeout:15000});
+              }
               await page.waitForTimeout(800);
               assert.deepEqual(errors,[],label+' React runtime exception');
               assert.equal(await page.getByText('Reviewer password').count(),0,'unrequested reviewer login returned');
