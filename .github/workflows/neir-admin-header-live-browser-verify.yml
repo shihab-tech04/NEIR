@@ -1,0 +1,94 @@
+name: Verify NEIR Admin header crash fixed on actual public Pages
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  live-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require real public release of the merged source
+        shell: bash
+        run: |
+          python - <<'PY'
+          import urllib.request,time,json
+          url='https://shihab-tech04.github.io/NEIR/version.json'
+          target='e5fe364711ca7aa2640a2e147e736c384d8e3276'
+          for attempt in range(48):
+              try:
+                  request=urllib.request.Request(url+'?readback='+str(attempt),
+                    headers={'Cache-Control':'no-cache'})
+                  with urllib.request.urlopen(request,timeout=20) as res:
+                      actual=json.load(res).get('build')
+                  print('Published:',actual)
+                  if actual==target:
+                      print('PASS exact NEIR Admin production build',actual)
+                      break
+              except Exception as error:
+                  print('Waiting for Pages:',str(error)[:160])
+              if attempt==47: raise AssertionError('Target production version was not published')
+              time.sleep(6)
+          PY
+      - name: Install Chromium for deployed-site browser verification
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Verify live Special Registration route on desktop and mobile
+        run: |
+          node --input-type=module <<'EOF'
+          import { chromium } from 'playwright';
+          import { strict as assert } from 'node:assert';
+          const browser=await chromium.launch({headless:true});
+          try {
+            for (const [label,width,height,url] of [
+              ['desktop',1440,900,'https://shihab-tech04.github.io/NEIR/?utm_source=chatgpt.com#/special-registration'],
+              ['mobile',390,844,'https://shihab-tech04.github.io/NEIR/#/special-registration']
+            ]) {
+              const page=await browser.newPage({viewport:{width,height}});
+              const errors=[];
+              page.on('pageerror',error=>errors.push(error.message));
+              const resp=await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
+              assert(resp && resp.ok(),label+' failed to load production page');
+              await page.getByRole('heading',{name:'Special Registration'}).first().waitFor({timeout:35000});
+              if(label==='mobile'){
+                await page.getByRole('button',{name:'Navigation'}).first().click();
+                await page.getByRole('dialog',{name:'Navigation'}).getByText('NEIR Admin').waitFor({timeout:16000});
+              } else {
+                await page.locator('header').getByText('NEIR Admin').first().waitFor({timeout:16000});
+              }
+              await page.waitForTimeout(1200);
+              assert.deepEqual(errors,[],label+' public page runtime errors');
+              const content=await page.locator('body').innerText();
+              assert(content.length>150,label+' blank page detected');
+              assert(!content.includes('Reviewer password'),label+' unwanted reviewer gate');
+              console.log('PASS live '+label+' NEIR Admin header, Special Registration and zero page errors');
+              await page.close();
+            }
+          } finally { await browser.close(); }
+          EOF
+      - name: Confirm public Special Registration API and private legacy boundary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import urllib.request,urllib.error,json
+          root='https://wjsdylxbvdnraztktbtg.supabase.co/functions/v1/'
+          def status(slug):
+              request=urllib.request.Request(root+slug,data=json.dumps({'action':'admin_list'}).encode(),
+                method='POST',headers={'Origin':'https://shihab-tech04.github.io','Content-Type':'application/json'})
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response:
+                      return response.status,json.load(response)
+              except urllib.error.HTTPError as err:
+                  return err.code,{}
+          public_code,listing=status('neir-prototype-special')
+          assert public_code==200 and isinstance(listing.get('items'),list),public_code
+          private_code,_=status('neir-special-registration')
+          assert private_code==401,private_code
+          print('PASS public prototype SQL access and private legacy boundary')
+          PY
