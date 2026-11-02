@@ -259,10 +259,19 @@ export const SpecialRegistrationReviewModal = ({
             >
               <div className="space-y-2">
                 {(registration.attachments || []).map((doc) => (
-                  <div key={doc.id} className="flex items-center gap-3 min-h-11 rounded-lg border border-[var(--color-border)] px-3 py-2">
-                    <CheckCircle2 aria-hidden="true" className="h-5 w-5 shrink-0 text-green-600" />
-                    <p className="type-body-sm text-[var(--color-text-primary)]">{doc.title}</p>
-                  </div>
+                  <button key={doc.id} type="button" onClick={() => handleDocumentSelect(doc)}
+                    aria-label={doc.uri ? 'Preview ' + doc.title : doc.title + ' — file unavailable'}
+                    disabled={!doc.uri}
+                    className={'flex w-full items-center gap-3 min-h-11 rounded-lg border border-[var(--color-border)] px-3 py-2 text-left ' +
+                      (doc.uri ? 'cursor-pointer hover:bg-[var(--color-background-subtle)] focus-visible:outline-2 focus-visible:outline-[var(--color-primary-dark)]' : 'opacity-70 cursor-not-allowed')}>
+                    <CheckCircle2 aria-hidden="true" className={'h-5 w-5 shrink-0 ' + (doc.uri ? 'text-green-600' : 'text-[var(--color-text-muted)]')} />
+                    <span className="min-w-0 flex-1">
+                      <span className="type-body-sm block text-[var(--color-text-primary)]">{doc.title}</span>
+                      {doc.filename && <span className="type-meta block truncate text-[var(--color-text-secondary)]">{doc.filename}{doc.size ? ' · ' + doc.size : ''}</span>}
+                      {!doc.uri && <span className="type-meta block text-[var(--color-text-secondary)]">Uploaded file is unavailable for preview</span>}
+                    </span>
+                    {doc.uri && <FileText aria-hidden="true" className="h-4 w-4 shrink-0 text-[var(--color-primary-dark)]" />}
+                  </button>
                 ))}
                 {!(registration.attachments?.length) && <p className="type-body-sm text-[var(--color-text-secondary)]">No documents selected.</p>}
               </div>
