@@ -18,6 +18,44 @@ jobs:
           cp index.source.html index.html
           npm install --no-audit --no-fund
           npm run build
+      - name: Assert Admin header cannot reference a removed auth identity
+        run: |
+          node --input-type=module <<'EOF'
+          import { readFileSync } from 'node:fs';
+          import { strict as assert } from 'node:assert';
+          const header=readFileSync('src/components/layout/Header.jsx','utf8');
+          const mobile=readFileSync('src/components/layout/MobileNavigationDrawer.jsx','utf8');
+          const app=readFileSync('src/App.jsx','utf8');
+          assert(!/\\buser\\s*\\?\\.|\\buser\\s*\\./.test(header),'removed auth user referenced in header');
+          assert(!/\\buseAuth\\b|AuthContext/.test(header+mobile+app),'obsolete authentication dependency returned');
+          assert(header.includes("const displayName = 'NEIR Admin'"),'display-only Admin name missing');
+          console.log('PASS: header and mobile shell do not use removed auth state');
+          EOF
+      - name: Render Admin in Chromium at desktop and mobile sizes
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.58.2
+          npx playwright install --with-deps chromium
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/neir-preview.log 2>&1 &
+          node --input-type=module <<'EOF'
+          import { chromium } from 'playwright';
+          import { strict as assert } from 'node:assert';
+          const browser=await chromium.launch({headless:true});
+          try {
+            for (const [label,width,height] of [['desktop',1440,900],['mobile',390,844]]) {
+              const page=await browser.newPage({viewport:{width,height}});
+              const errors=[];
+              page.on('pageerror',error=>errors.push(error.message));
+              await page.goto('http://127.0.0.1:4173/NEIR/#/special-registration',{waitUntil:'domcontentloaded',timeout:30000});
+              await page.getByRole('heading',{name:'Special Registration'}).first().waitFor({timeout:25000});
+              await page.locator('header').getByText('NEIR Admin').first().waitFor({timeout:15000});
+              await page.waitForTimeout(800);
+              assert.deepEqual(errors,[],label+' React runtime exception');
+              assert.equal(await page.getByText('Reviewer password').count(),0,'unrequested reviewer login returned');
+              await page.close();
+              console.log('PASS: '+label+' renders header and Special Registration without runtime exceptions');
+            }
+          } finally { await browser.close(); }
+          EOF
       - name: Verify no-login Special Registration table and review transport
         run: |
           node --input-type=module <<'EOF'
