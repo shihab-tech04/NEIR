@@ -1,0 +1,38 @@
+name: NEIR Admin pre-header-fix independent recovery backup
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  restore-full-git:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify independently restorable pre-release main
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE="15a9ad97fd50f38fc5cdb3bf0b2474d0a67c0b8e"
+          git fetch origin main --tags
+          test "$(git rev-parse origin/main)" = "$BEFORE"
+          mkdir -p recovery
+          git bundle create recovery/NEIR-Admin-pre-header-crashfix-15a9ad97.bundle --all
+          git bundle verify recovery/NEIR-Admin-pre-header-crashfix-15a9ad97.bundle
+          git clone recovery/NEIR-Admin-pre-header-crashfix-15a9ad97.bundle /tmp/neir-header-restore
+          git -C /tmp/neir-header-restore cat-file -e "$BEFORE^{commit}"
+          for path in src/components/layout/Header.jsx src/components/layout/MobileNavigationDrawer.jsx src/App.jsx .github/workflows/neir-special-integration.yml; do
+            git show "$BEFORE:$path" > /tmp/original
+            git -C /tmp/neir-header-restore show "$BEFORE:$path" > /tmp/restored
+            cmp /tmp/original /tmp/restored
+          done
+          (cd recovery && sha256sum NEIR-Admin-pre-header-crashfix-15a9ad97.bundle > bundle.sha256)
+          printf 'repo=shihab-tech04/NEIR\\npre_release=%s\\nfull_git_restore=PASS\\nsource_comparison=PASS\\n' "$BEFORE" > recovery/manifest.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEIR-Admin-pre-header-crashfix-full-git
+          path: recovery/
+          retention-days: 7
